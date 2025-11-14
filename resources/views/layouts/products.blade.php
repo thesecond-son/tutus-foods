@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    
     <title>{{ config('app.name', 'Tutu’s Foods') }}</title>
 
     <!-- Tailwind CSS -->
@@ -21,6 +22,7 @@
 
     <!-- Slider.js -->
     <script src="https://cdn.jsdelivr.net/npm/slider-js@1.0.1/dist/slider.min.js" defer></script>
+
 
     <style>
         .overlay {
@@ -111,6 +113,7 @@
 
       <a href="/" class="text-gray-800 hover:text-pink-500 font-medium border-b border-gray-100 pb-2">Home</a>
       <a href="/about" class="text-gray-800 hover:text-pink-500 font-medium border-b border-gray-100 pb-2">About Us</a>
+      <a href="/blog" class="text-gray-800 hover:text-pink-500 font-medium border-b border-gray-100 pb-2">Blog</a>
     </div>
   </div>
 
@@ -139,6 +142,8 @@
     });
   </script>
 </header>
+
+<div id="notification-container" class="fixed top-5 right-5 z-50 space-y-2"></div>
 
 
     <!-- Page Content -->

@@ -25,13 +25,14 @@ class OrderInfolist
                 TextEntry::make('delivery_type')
                     ->badge(),
                 TextEntry::make('delivery_option_id')
-                    ->numeric()
-                    ->placeholder('-'),
+                    ->label('Delivery Option')
+                    ->getStateUsing(fn($record) => $record->deliveryOption?->name ?? '-'),
                 TextEntry::make('delivery_address')
                     ->placeholder('-')
                     ->columnSpanFull(),
-                TextEntry::make('pickup_location_id')
-                    ->numeric()
+                    TextEntry::make('pickup_location_id')
+                    ->label('Pickup Location')
+                    ->getStateUsing(fn($record) => $record->pickupLocation?->name ?? '-')
                     ->placeholder('-'),
                 TextEntry::make('pickup_date')
                     ->date()

@@ -79,7 +79,7 @@
         </div>
         @endif
 
-        <pre>{{ var_dump($cart) }}</pre>
+
         @php
             $hasPickupOnly = collect($cart)->contains(function ($p) {
                 if (is_array($p)) {
@@ -92,19 +92,25 @@
         @endphp
 
         @if($hasPickupOnly)
-          <p class="text-red-600 font-medium text-sm">Some products are pickup-only. Pickup is the only option.</p>
-          <input type="hidden" name="delivery_type" value="pickup">
-        @else
-        <select name="delivery_type" id="delivery_type"
-            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[var(--brand-pink)] outline-none"
-            {{ $hasMixedCart ? 'disabled' : '' }}>
-            <option value="">Select Delivery Method</option>
-            @if(!$hasSeasonal)
-                <option value="delivery">Delivery</option>
-            @endif
-            <option value="pickup">Pickup</option>
-        </select>
+    <p class="text-red-600 font-medium text-sm">
+        Some products are pickup-only. Pickup is the only option.
+    </p>
+
+    <!-- Show the select, disabled, pre-selected to pickup -->
+    <select name="delivery_type" id="delivery_type" disabled class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[var(--brand-pink)] outline-none">
+        <option value="pickup" selected>Pickup</option>
+    </select>
+@else
+    <select name="delivery_type" id="delivery_type"
+        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[var(--brand-pink)] outline-none"
+        {{ $hasMixedCart ? 'disabled' : '' }}>
+        <option value="">Select Delivery Method</option>
+        @if(!$hasSeasonal)
+            <option value="delivery">Delivery</option>
         @endif
+        <option value="pickup">Pickup</option>
+    </select>
+@endif
 
         {{-- DELIVERY BLOCK --}}
         <div id="method_block" class="mt-3 space-y-5">
@@ -247,9 +253,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const deliveryTypeSelect = document.getElementById('delivery_type');
     const deliveryAddressContainer = document.getElementById('delivery_address_container');
     const pickupContainer = document.getElementById('pickup_container');
-    const pickupLocationSelect = document.getElementById('pickup_location_id');
+    const pickupLocationSelects = document.querySelectorAll('#pickup_container select, #pickup_container input[type="date"]');
+    const pickupLocationSelect = document.querySelector('#pickup_container select[name="pickup_location_id"]');
+    // const pickupLocationSelect = document.getElementById('pickup_location_id');
     const pickupDateInput = document.getElementById('pickup_date');
-    const pickupTimeSelect = document.getElementById('pickup_time');
+    const pickupTimeSelect = document.querySelector('#pickup_container select[name="pickup_time"]');
     const deliveryOptionSelect = document.getElementById('delivery_option_id');
     const subtotalDisplay = document.getElementById('subtotalDisplay');
     const deliveryFeeDisplay = document.getElementById('deliveryFeeDisplay');
@@ -257,6 +265,47 @@ document.addEventListener('DOMContentLoaded', function() {
     const paymentOptions = document.querySelectorAll('.payment-option');
     const paymentPlaceholder = document.getElementById('payment_placeholder');
     const paymentInput = document.getElementById('payment_method_input');
+
+     // --- disable payment options initially ---
+     paymentOptions.forEach(option => {
+        option.classList.add('opacity-50', 'pointer-events-none');
+    });
+
+    // Reinitialize flatpickr when pickup location changes
+    pickupLocationSelect.addEventListener('change', function() {
+    const selectedOption = pickupLocationSelect.options[pickupLocationSelect.selectedIndex];
+    const availableDays = JSON.parse(selectedOption.dataset.days || '[]'); // e.g. ["Monday","Wednesday"]
+
+    // Destroy previous flatpickr instance if any
+    if (pickupDateInput._flatpickr) {
+        pickupDateInput._flatpickr.destroy();
+    }
+
+    // Recreate flatpickr with day restriction
+    flatpickr(pickupDateInput, {
+        dateFormat: "Y-m-d",
+        minDate: new Date().fp_incr(2),
+        disableMobile: true,
+        disable: [
+        function(date) {
+            const weekday = date.toLocaleString('en-US', { weekday: 'long' });
+            // disable if the weekday is NOT in availableDays
+            return !availableDays.includes(weekday);
+        }
+        ],
+        onDayCreate: function(dObj, dStr, fp, dayElem) {
+        const weekday = dayElem.dateObj.toLocaleString('en-US', { weekday: 'long' });
+        if (!availableDays.includes(weekday)) {
+            // make it visibly greyed-out
+            dayElem.style.opacity = '0.3';
+            dayElem.style.pointerEvents = 'none';
+        }
+        },
+        onChange: function(selectedDates, dateStr) {
+        pickupDateInput.dispatchEvent(new Event('change'));
+        }
+    });
+    });
 
     // --- state ---
     let subtotal = Object.values(cart).reduce((sum, p) => sum + (parseFloat(p.price) || 0) * (p.quantity || 0), 0);
@@ -272,10 +321,48 @@ document.addEventListener('DOMContentLoaded', function() {
         orderTotalDisplay.textContent = '£' + (subtotal + deliveryFee).toFixed(2);
     }
 
-    // --- disable payment options initially ---
-    paymentOptions.forEach(option => {
-        option.classList.add('opacity-50', 'pointer-events-none');
+     // ✅ Generate time slots when pickup location or date changes
+     function updatePickupTimeSlots() {
+    const locSelect = pickupLocationSelect;
+    const dateInput = pickupDateInput;
+    const timeSelect = pickupTimeSelect;
+
+    // Clear old slots first
+    timeSelect.innerHTML = '<option value="">Select a time</option>';
+    timeSelect.disabled = true;
+
+    if (!locSelect?.value || !dateInput?.value) return;
+
+    const selectedOption = locSelect.options[locSelect.selectedIndex];
+    const start = selectedOption.dataset.startTime;
+    const end = selectedOption.dataset.endTime;
+    const intervalMinutes = parseInt(selectedOption.dataset.interval || "30", 10);
+
+    if (!start || !end) return;
+
+    let startTime = new Date(`1970-01-01T${start}`);
+    let endTime = new Date(`1970-01-01T${end}`);
+
+    const slots = [];
+    while (startTime < endTime) {
+        slots.push(startTime.toTimeString().substring(0, 5)); // HH:MM
+        startTime = new Date(startTime.getTime() + intervalMinutes * 60000);
+    }
+
+    slots.forEach(slot => {
+        const opt = document.createElement('option');
+        opt.value = slot;
+        opt.textContent = slot;
+        timeSelect.appendChild(opt);
     });
+
+    // ✅ Enable once slots are ready
+    timeSelect.disabled = false;
+    }
+
+pickupLocationSelect.addEventListener('change', updatePickupTimeSlots);
+pickupDateInput.addEventListener('change', updatePickupTimeSlots);
+
 
     // --- toggle delivery/pickup UI ---
     function toggleMethodBlocks() {
@@ -294,21 +381,42 @@ document.addEventListener('DOMContentLoaded', function() {
         togglePaymentAccess();
     }
 
-    // --- enable/disable payment options based on delivery method ---
-    function togglePaymentAccess() {
-        const selectedValue = deliveryTypeSelect ? deliveryTypeSelect.value : '';
-        if (selectedValue || hasPickupOnly) {
-            paymentOptions.forEach(option => {
-                option.classList.remove('opacity-50', 'pointer-events-none');
-            });
-        } else {
-            paymentOptions.forEach(option => {
-                option.classList.add('opacity-50', 'pointer-events-none');
-            });
+    function isReadyForPayment() {
+        const type = deliveryTypeSelect?.value;
+
+        // Pickup: must pick date + time
+        if (type === "pickup" || hasPickupOnly) {
+            return pickupDateInput.value && pickupTimeSelect.value;
         }
+
+        // Delivery: must pick delivery option
+        if (type === "delivery") {
+            return deliveryOptionSelect?.value;
+        }
+
+        return false;
     }
 
+
+    function togglePaymentAccess() {
+    if (isReadyForPayment()) {
+        paymentOptions.forEach(option =>
+            option.classList.remove('opacity-50', 'pointer-events-none')
+        );
+    } else {
+        paymentOptions.forEach(option =>
+            option.classList.add('opacity-50', 'pointer-events-none')
+        );
+    }
+}
+
+
     if (deliveryTypeSelect) deliveryTypeSelect.addEventListener('change', toggleMethodBlocks);
+    pickupDateInput?.addEventListener('change', togglePaymentAccess);
+    pickupTimeSelect?.addEventListener('change', togglePaymentAccess);
+    deliveryOptionSelect?.addEventListener('change', togglePaymentAccess);
+    deliveryTypeSelect?.addEventListener('change', togglePaymentAccess);
+
     toggleMethodBlocks();
 
     // --- delivery fee calculation ---
@@ -388,50 +496,105 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Square ---
     const squareMode = "{{ config('services.square.mode') }}";
-    const squareAppId = squareMode === 'live'
-        ? "{{ config('services.square.live_application_id') }}"
-        : "{{ config('services.square.sandbox_application_id') }}";
-    const squareLocationId = squareMode === 'live'
-        ? "{{ config('services.square.live_location_id') }}"
-        : "{{ config('services.square.sandbox_location_id') }}";
+    let squareAppId = "";
+    let squareLocationId = "";
 
-    function loadSquareButton() {
-        if (squareLoaded) return initSquarePayment();
-        const script = document.createElement('script');
-        script.src = squareMode === 'live'
-            ? 'https://web.squarecdn.com/v1/square.js'
-            : 'https://sandbox.web.squarecdn.com/v1/square.js';
-        script.onload = () => {
-            squareLoaded = true;
-            initSquarePayment();
-        };
-        document.body.appendChild(script);
-    }
+// Fetch Square config from backend (appId + locationId)
+async function loadSquareConfig() {
+    const res = await fetch('/square/config');
+    const data = await res.json();
+
+    squareAppId = data.appId;
+    squareLocationId = data.locationId;
+}
+
+
+function loadSquareButton() {
+    if (squareLoaded) return initSquarePayment();
+
+    const script = document.createElement('script');
+    script.src = squareMode === 'live'
+        ? 'https://web.squarecdn.com/v1/square.js'
+        : 'https://sandbox.web.squarecdn.com/v1/square.js';
+
+    script.onload = () => {
+        squareLoaded = true;
+        initSquarePayment();
+    };
+
+    document.body.appendChild(script);
+}
+
+    function collectCustomerInfo() {
+    return {
+        customer_email: document.querySelector('input[name="customer_email"]').value,
+        customer_first_name: document.querySelector('input[name="customer_first_name"]').value,
+        customer_last_name: document.querySelector('input[name="customer_last_name"]').value,
+        customer_phone: document.querySelector('input[name="customer_phone"]').value,
+        delivery_type: document.querySelector('select[name="delivery_type"]').value,
+        delivery_option_id: document.getElementById('delivery_option_id')?.value ?? null,
+        pickup_location_id: document.querySelector('#pickup_container select[name="pickup_location_id"]')?.value ?? null,
+        pickup_date: document.getElementById('pickup_date')?.value ?? null,
+        pickup_time: document.querySelector('#pickup_container select[name="pickup_time"]')?.value ?? null
+    };
+}
+
 
     async function initSquarePayment() {
         if (!window.Square) return console.error("Square SDK not loaded");
 
-        const placeholder = document.getElementById('payment_placeholder');
-        placeholder.innerHTML = `<div id="square-payment-button" class="w-full"></div>`;
+        // Load config first (REQUIRED)
+    await loadSquareConfig();
 
-        const response = await fetch('/square/client-token');
-        const data = await response.json();
-        const clientToken = data.clientToken;
+const placeholder = document.getElementById('payment_placeholder');
+placeholder.innerHTML = `
+    <div id="card-container"></div>
+    <button id="sq-pay" class="w-full mt-4 bg-black text-white p-3 rounded-lg">
+        Pay with Card
+    </button>
+`;
 
-        const payments = Square.payments(squareAppId, squareLocationId, { clientToken });
-        const card = await payments.card();
-        await card.attach('#square-payment-button');
+// 1️⃣ Create payments instance (NO client token needed)
+const payments = window.Square.payments(squareAppId, squareLocationId);
 
-        document.getElementById('square-payment-button').addEventListener('click', async () => {
-            const result = await card.tokenize();
-            if (result.status === 'OK') {
-                console.log(`Square ${squareMode} token:`, result.token);
-                document.getElementById('checkoutForm').submit();
-            } else {
-                alert("Square tokenization failed");
-            }
-        });
+// 2️⃣ Create & attach card element
+const card = await payments.card();
+await card.attach('#card-container');
+
+// 3️⃣ On Payment
+document.getElementById('sq-pay').addEventListener('click', async () => {
+    const result = await card.tokenize();
+
+    if (result.status !== 'OK') {
+        alert("Card tokenization failed.");
+        return;
     }
+
+    console.log("Square payment token:", result.token);
+
+    // Send to backend
+    const res = await fetch("/checkout/square/create", {
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            source_id: result.token,
+            ...collectCustomerInfo()
+        })
+    });
+
+    const data = await res.json();
+
+    if (data.status === "success") {
+        window.location.href = "/checkout/success/" + data.order_id;
+    } else {
+        console.error(data);
+        alert("Square payment failed.");
+    }
+});
+}
 
     // --- PayPal ---
     function loadPayPalButton() {
@@ -463,16 +626,76 @@ document.addEventListener('DOMContentLoaded', function() {
         const orderTotal = parseFloat(document.getElementById('orderTotal').textContent.replace('£', '') || 0).toFixed(2);
         paypal.Buttons({
             createOrder: function(data, actions) {
-                return actions.order.create({
-                    purchase_units: [{ amount: { value: orderTotal } }]
-                });
+                return fetch("{{ route('checkout.paypal.create') }}", {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    subtotal: subtotal,
+                    delivery_fee: deliveryFee,
+                    total: (subtotal + deliveryFee)
+                })
+            })
+                .then(res => res.json())
+                .then(data => data.orderID);
             },
             onApprove: function(data, actions) {
-                return actions.order.capture().then(function(details) {
-                    alert(`PayPal ${"{{ config('services.paypal.mode') }}"} payment completed by ${details.payer.name.given_name}`);
-                    document.getElementById('checkoutForm').submit();
-                });
+               // --- grab customer info safely ---
+            const emailEl = document.querySelector('input[name="customer_email"]');
+            const firstNameEl = document.querySelector('input[name="customer_first_name"]');
+            const lastNameEl = document.querySelector('input[name="customer_last_name"]');
+            const phoneEl = document.querySelector('input[name="customer_phone"]');
+            const deliveryTypeEl = document.querySelector('select[name="delivery_type"]');
+            
+            const deliveryOptionSelect = document.getElementById('delivery_option_id');
+            const pickupLocationSelect = document.querySelector('#pickup_container select[name="pickup_location_id"]');
+            const pickupDateInput = document.getElementById('pickup_date');
+            const pickupTimeSelect = document.querySelector('#pickup_container select[name="pickup_time"]');
+
+            if (!emailEl || !firstNameEl || !lastNameEl || !phoneEl || !deliveryTypeEl) {
+                console.error("Required checkout fields are missing");
+                alert("Please fill in all required fields before completing the payment.");
+                return;
             }
+
+            const customerInfo = {
+                customer_email: emailEl.value,
+                customer_first_name: firstNameEl.value,
+                customer_last_name: lastNameEl.value,
+                customer_phone: phoneEl.value,
+                delivery_type: deliveryTypeEl.value,
+                delivery_option_id: deliveryOptionSelect?.value ?? null,
+                pickup_location_id: pickupLocationSelect?.value ?? null,
+                pickup_date: pickupDateInput?.value ?? null,
+                pickup_time: pickupTimeSelect?.value ?? null
+            };
+
+                return fetch("{{ route('checkout.paypal.capture') }}?order_id=" + data.orderID, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify({
+                        order_id: data.orderID,
+                        ...customerInfo
+                    })
+                })
+                .then(res => res.json())
+                .then(function(response) {
+                if (!response.order_id) {
+                    console.error("No order ID returned from server", response);
+                    return;
+                }
+                window.location.href = "/checkout/success/" + response.order_id;
+                });
+            },
+            onCancel: function() {
+        console.log("Payment cancelled");
+    }
         }).render('#paypal-button-container');
     }
 });

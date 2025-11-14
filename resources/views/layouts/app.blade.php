@@ -112,6 +112,7 @@
 
       <a href="/" class="text-gray-800 hover:text-pink-500 font-medium border-b border-gray-100 pb-2">Home</a>
       <a href="/about" class="text-gray-800 hover:text-pink-500 font-medium border-b border-gray-100 pb-2">About Us</a>
+      <a href="/blog" class="text-gray-800 hover:text-pink-500 font-medium border-b border-gray-100 pb-2">Blog</a>
     </div>
   </div>
 

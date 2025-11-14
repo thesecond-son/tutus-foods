@@ -73,16 +73,17 @@ Route::prefix('cart')->name('cart.')->group(function () {
 
 // Checkout flow
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
-Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-Route::post('/checkout/paypal/create', [CheckoutController::class, 'createPayPalOrder'])->name('checkout.paypal.create');
+Route::post('/checkout', [CheckoutController::class, 'createOrderAfterPayment']);
+Route::post('/checkout/store', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::post('/checkout/paypal/create', [CheckoutController::class, 'createPayPalOrder'])->name('checkout.paypal.create')->withoutMiddleware(['web']);
 Route::post('/checkout/paypal/capture', [CheckoutController::class, 'capturePayPalOrder'])->name('checkout.paypal.capture');
 Route::post('/checkout/square/create', [CheckoutController::class, 'createSquarePayment'])->name('checkout.square.create');
-Route::get('/square/client-token', [CheckoutController::class, 'getSquareClientToken']);
+Route::get('/square/config', [CheckoutController::class, 'getSquareConfig']);
 Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
 
 // Corporate requests
-Route::get('/corporate', [CorporateRequestController::class, 'index'])->name('corporate.form');
-Route::post('/corporate', [CorporateRequestController::class, 'store'])->name('corporate.submit');
+Route::get('/corporate', [CorporateRequestController::class, 'index'])->name('corporate.index');
+Route::post('/corporate', [CorporateRequestController::class, 'submit'])->name('corporate.submit');
 
 
 
