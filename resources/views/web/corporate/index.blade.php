@@ -79,6 +79,13 @@
         <input type="text" name="name" required>
       </div>
 
+      {{-- Email --}}
+      <div>
+    <label class="font-medium text-gray-800 text-sm mb-1 block">Email Address *</label>
+    <input type="email" name="email" required>
+    </div>
+
+
       {{-- Phone + Purpose --}}
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>

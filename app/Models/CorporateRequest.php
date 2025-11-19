@@ -9,6 +9,7 @@ class CorporateRequest extends Model
     protected $fillable = [
         'name',
         'phone',
+        'email',
         'purpose',
         'people',
         'type',
