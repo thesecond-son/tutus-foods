@@ -10,6 +10,9 @@ use App\Http\Controllers\Web\{
     CheckoutController,
     CorporateRequestController
 };
+use App\Models\Order;
+use App\Mail\CustomerOrderMail;
+use Illuminate\Support\Facades\Mail;
 
 
 // Public pages
@@ -84,6 +87,18 @@ Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])-
 // Corporate requests
 Route::get('/corporate', [CorporateRequestController::class, 'index'])->name('corporate.index');
 Route::post('/corporate', [CorporateRequestController::class, 'submit'])->name('corporate.submit');
+
+
+
+Route::get('/test-mail', function () {
+    $order = Order::first(); // pick any order
+    if (!$order) {
+        return 'No orders found!';
+    }
+
+    Mail::to('romithesecond@gmail.com')->send(new CustomerOrderMail($order));
+    return 'Mail sent!';
+});
 
 
 

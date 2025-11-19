@@ -16,6 +16,10 @@ use Square\Models\Money;
 use Square\Exceptions\ApiException;
 use Square\Models\CreatePaymentLinkRequest;
 use Square\Models\CreatePaymentRequest;
+use App\Mail\AdminOrderMail;
+use App\Mail\CustomerOrderMail;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 
 class CheckoutController extends Controller
@@ -91,10 +95,21 @@ class CheckoutController extends Controller
     
             // Clear cart
             session()->forget('cart');
+
+            // REGISTER EMAILS HERE (inside transaction)
+    DB::afterCommit(function () use ($order) {
+        Mail::to($order->customer_email)->send(new CustomerOrderMail($order));
+        Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
+        // \Log::info('Email sent AFTER COMMIT for order ' . $order->order_number);
+    });
     
             return $order;
         });
-    }
+    
+}
+
+
+
 // --- PayPal ---
 public function createPayPalOrder(Request $request)
 {
@@ -346,9 +361,49 @@ public function getSquareConfig()
         return $order;
     });
 
+
+    DB::afterCommit(function () use ($order) {
+        Mail::to($order->customer_email)->send(new CustomerOrderMail($order));
+        // Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
+    });
+    
+
+    // // Reload order with relations for mail
+    // $order = Order::with('items.product')->find($order->id);
+
+    //     // 📧 1. Send email to customer
+    //     Mail::to($order->customer_email)->send(new CustomerOrderMail($order));
+
+
+// 📧 2. Send email to admin
+// try {
+//     Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
+
+//     \Log::info('Admin email sent successfully', [
+//         'to' => 'info@tutuscupcakes.com',
+//         'order_id' => $order->id
+//     ]);
+// } catch (\Exception $e) {
+//     \Log::error('Admin email failed to send', [
+//         'to' => 'info@tutuscupcakes.com',
+//         'order_id' => $order->id,
+//         'error' => $e->getMessage(),
+//         'trace' => $e->getTraceAsString(),
+//     ]);
+// }
+
+    // 🔔 3. Create a Filament admin notification
+    Notification::make()
+        ->title('New Order')
+        ->body("Order {$order->order_number} was placed.")
+        ->success()
+        ->sendToDatabase(\App\Models\User::whereHas('roles', fn($q) => $q->where('name', 'admin'))->get());
+
+
     // Redirect to a success page or show a thank-you message
-    return redirect()->route('checkout.success', $order)->with('status', 'Order placed successfully!');
+    return redirect()->route('checkout.success', $order->id)->with('status', 'Order placed successfully!');
 }
+
 
 public function success($orderId)
 {
