@@ -26,7 +26,7 @@
             <i class="fas fa-check-circle"></i>
         </div>
         <h1 class="text-4xl font-bold text-gray-900 mb-2">Order Successful 🎉</h1>
-        <p class="text-gray-600 text-lg">Thank you for shopping with Tutu’s Foods!</p>
+        <p class="text-gray-600 text-lg">Thank you for shopping with Tutu’s Foods! Please check your mail, spam or promotions for your order receipt.</p>
     </div>
 
     {{-- ORDER CARD --}}
