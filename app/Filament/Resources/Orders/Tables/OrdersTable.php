@@ -30,12 +30,16 @@ class OrdersTable
                     ->searchable(),
                 TextColumn::make('delivery_type')
                     ->badge(),
-                TextColumn::make('delivery_option_id')
+                TextColumn::make('deliveryOption.name')
+                    ->label('Delivery Option')
                     ->numeric()
-                    ->sortable(),
-                TextColumn::make('pickup_location_id')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('pickupLocation.name')
+                    ->label('Pickup Location')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('pickup_date')
                     ->date()
                     ->sortable(),

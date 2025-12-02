@@ -13,6 +13,9 @@ class CorporateRequestInfolist
             ->components([
                 TextEntry::make('name'),
                 TextEntry::make('phone'),
+                TextEntry::make('email')
+                    ->label('Email address')
+                    ->placeholder('-'),
                 TextEntry::make('purpose'),
                 TextEntry::make('people')
                     ->numeric(),

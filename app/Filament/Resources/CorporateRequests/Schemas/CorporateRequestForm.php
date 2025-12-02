@@ -17,6 +17,10 @@ class CorporateRequestForm
                 TextInput::make('phone')
                     ->tel()
                     ->required(),
+                TextInput::make('email')
+                    ->label('Email address')
+                    ->email()
+                    ->default(null),
                 TextInput::make('purpose')
                     ->required(),
                 TextInput::make('people')

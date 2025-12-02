@@ -19,6 +19,9 @@ class CorporateRequestsTable
                     ->searchable(),
                 TextColumn::make('phone')
                     ->searchable(),
+                TextColumn::make('email')
+                    ->label('Email address')
+                    ->searchable(),
                 TextColumn::make('purpose')
                     ->searchable(),
                 TextColumn::make('people')
