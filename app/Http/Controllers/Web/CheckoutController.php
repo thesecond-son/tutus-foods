@@ -10,19 +10,15 @@ use App\Models\DeliveryOption;
 use App\Models\PickupLocation;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 use Square\SquareClient;
-use Square\Models\CreateClientTokenRequest;
 use Square\Environments;
-use Square\Exceptions\SquareException;
-use Square\Models\Money;
 use Square\Exceptions\ApiException;
-use Square\Models\CreatePaymentLinkRequest;
+use Square\Models\Money;
 use Square\Models\CreatePaymentRequest;
 use App\Mail\AdminOrderMail;
 use App\Mail\CustomerOrderMail;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
-use Square\Legacy\Environment;
 
 class CheckoutController extends Controller
 {
@@ -109,7 +105,6 @@ class CheckoutController extends Controller
         });
     
 }
-
 
 
 // --- PayPal ---
@@ -233,7 +228,7 @@ public function createSquarePayment(Request $request)
         ]
     );
     
-    $paymentsApi = $client->getPaymentsApi();
+    $paymentsApi = $client->payments;
     $orderId = 'ORD-' . strtoupper(uniqid());
 
     try {
