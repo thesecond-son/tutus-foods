@@ -498,6 +498,7 @@ pickupDateInput.addEventListener('change', updatePickupTimeSlots);
     const squareMode = "{{ config('services.square.mode') }}";
     let squareAppId = "";
     let squareLocationId = "";
+    
 
 // Fetch Square config from backend (appId + locationId)
 async function loadSquareConfig() {
@@ -552,7 +553,7 @@ function loadSquareButton() {
     const placeholder = document.getElementById('payment_placeholder');
     placeholder.innerHTML = `
     <div id="card-container"></div>
-    <button id="sq-pay" class="w-full mt-4 bg-black text-white p-3 rounded-lg">
+    <button id="sq-pay" type="button" class="w-full mt-4 bg-black text-white p-3 rounded-lg">
         Pay with Card
     </button>
 `;
@@ -566,12 +567,18 @@ await card.attach('#card-container');
 
 // 3️⃣ On Payment
 document.getElementById('sq-pay').addEventListener('click', async () => {
+    const btn = document.getElementById('sq-pay');
+    btn.disabled = true;
+    btn.innerText = "Processing...";
+
     const result = await card.tokenize();
 
-    if (result.status !== 'OK') {
-        alert("Card tokenization failed.");
-        return;
-    }
+        if (result.status !== 'OK') {
+            alert("Card tokenization failed.");
+            btn.disabled = false;
+            btn.innerText = "Pay with Card";
+            return;
+        }
 
     console.log("Square payment token:", result.token);
 
@@ -595,6 +602,8 @@ document.getElementById('sq-pay').addEventListener('click', async () => {
     } else {
         console.error(data);
         alert("Square payment failed.");
+        btn.disabled = false;
+        btn.innerText = "Pay with Card";
     }
 });
 }
