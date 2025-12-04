@@ -222,11 +222,11 @@ public function createSquarePayment(Request $request)
         ? config('services.square.live_access_token')
         : config('services.square.sandbox_access_token');
 
-    $client = new SquareClient([
-        'accessToken' => $accessToken,
-        'environment' => $mode === 'live' ? 'production' : 'sandbox',
-    ]);
-
+    $client = SquareClient::builder()
+        ->accessToken($accessToken)
+        ->environment($mode === 'live' ? 'production' : 'sandbox')
+        ->build();
+    
     $paymentsApi = $client->getPaymentsApi();
     $orderId = 'ORD-' . strtoupper(uniqid());
 
@@ -237,10 +237,13 @@ public function createSquarePayment(Request $request)
 
         $body = new CreatePaymentRequest(
             $request->source_id, // ← SQUARE PAYMENT TOKEN FROM JS
-            $orderId
+            $money
         );
 
-        $body->setAmountMoney($money);
+        // $body->setAmountMoney($money);
+
+        //Attach your own ID:
+        $body->setIdempotencyKey($orderId);
 
         $response = $paymentsApi->createPayment($body);
 
