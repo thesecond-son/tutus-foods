@@ -12,8 +12,8 @@ use Srmklive\PayPal\Services\PayPal as PayPalClient;
 use Square\SquareClient;
 use Square\Environments;
 use Square\Exceptions\ApiException;
-use Square\Models\Money;
 use Square\Models\CreatePaymentRequest;
+use Square\Models\Money;
 use App\Mail\AdminOrderMail;
 use App\Mail\CustomerOrderMail;
 use Filament\Notifications\Notification;
@@ -232,18 +232,22 @@ public function createSquarePayment(Request $request)
     $orderId = 'ORD-' . strtoupper(uniqid());
 
     try {
-        $money = new Money();
-        $money->setAmount((int)($totalAmount * 100)); // convert GBP → pence
-        $money->setCurrency('GBP');
+        // $money = new Money();
+        // $money->setAmount((int)($totalAmount * 100)); // convert GBP → pence
+        // $money->setCurrency('GBP');
 
-        $body = new CreatePaymentRequest(
-            $request->source_id, // ← SQUARE PAYMENT TOKEN FROM JS
-            $orderId
-        );
+        
+        $paymentBody = [
+            'source_id' => $request->source_id,
+            'idempotency_key' => $orderId,
+            'amount_money' => [
+                'amount' => (int)($totalAmount * 100), // convert to smallest currency unit
+                'currency' => 'GBP'
+            ]
+        ];
+        // $body->setAmountMoney($money);
 
-        $body->setAmountMoney($money);
-
-        $response = $paymentsApi->createPayment($body);
+        $response = $paymentsApi->createPayment($paymentBody);
 
         if ($response->isSuccess()) {
             \Log::info('Square Payment Success', ['response' => $response->getResult()]);
