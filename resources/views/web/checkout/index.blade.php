@@ -541,13 +541,16 @@ function loadSquareButton() {
 
 
     async function initSquarePayment() {
-        if (!window.Square) return console.error("Square SDK not loaded");
+        if (!window.Square) {
+    console.log("Waiting for Square SDK...");
+    return;
+}
 
         // Load config first (REQUIRED)
     await loadSquareConfig();
 
-const placeholder = document.getElementById('payment_placeholder');
-placeholder.innerHTML = `
+    const placeholder = document.getElementById('payment_placeholder');
+    placeholder.innerHTML = `
     <div id="card-container"></div>
     <button id="sq-pay" class="w-full mt-4 bg-black text-white p-3 rounded-lg">
         Pay with Card

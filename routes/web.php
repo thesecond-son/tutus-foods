@@ -82,6 +82,7 @@ Route::post('/checkout/paypal/create', [CheckoutController::class, 'createPayPal
 Route::post('/checkout/paypal/capture', [CheckoutController::class, 'capturePayPalOrder'])->name('checkout.paypal.capture');
 Route::post('/checkout/square/create', [CheckoutController::class, 'createSquarePayment'])->name('checkout.square.create');
 Route::get('/square/config', [CheckoutController::class, 'getSquareConfig']);
+
 Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
 
 // Corporate requests

@@ -237,7 +237,7 @@ public function createSquarePayment(Request $request)
         $money->setCurrency('GBP');
 
         $body = new CreatePaymentRequest(
-            $request->token, // ← SQUARE PAYMENT TOKEN FROM JS
+            $request->source_id, // ← SQUARE PAYMENT TOKEN FROM JS
             $orderId
         );
 
@@ -260,12 +260,21 @@ public function createSquarePayment(Request $request)
     }
 }
 
-    
 public function getSquareConfig()
 {
+    $mode = config('services.square.mode', 'sandbox');
+
+    $appId = $mode === 'live'
+        ? config('services.square.live_application_id')
+        : config('services.square.sandbox_application_id');
+
+    $locationId = $mode === 'live'
+        ? config('services.square.live_location_id')
+        : config('services.square.sandbox_location_id');
+
     return response()->json([
-        'appId' => config('services.square.app_id'),
-        'locationId' => config('services.square.location_id')
+        'appId' => $appId,
+        'locationId' => $locationId,
     ]);
 }
 
@@ -367,31 +376,6 @@ public function getSquareConfig()
         // Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
     });
     
-
-    // // Reload order with relations for mail
-    // $order = Order::with('items.product')->find($order->id);
-
-    //     // 📧 1. Send email to customer
-    //     Mail::to($order->customer_email)->send(new CustomerOrderMail($order));
-
-
-// 📧 2. Send email to admin
-// try {
-//     Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
-
-//     \Log::info('Admin email sent successfully', [
-//         'to' => 'info@tutuscupcakes.com',
-//         'order_id' => $order->id
-//     ]);
-// } catch (\Exception $e) {
-//     \Log::error('Admin email failed to send', [
-//         'to' => 'info@tutuscupcakes.com',
-//         'order_id' => $order->id,
-//         'error' => $e->getMessage(),
-//         'trace' => $e->getTraceAsString(),
-//     ]);
-// }
-
     // 🔔 3. Create a Filament admin notification
     Notification::make()
         ->title('New Order')
