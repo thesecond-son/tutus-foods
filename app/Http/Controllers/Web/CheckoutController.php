@@ -11,6 +11,8 @@ use App\Models\PickupLocation;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 use Square\SquareClient;
 use Square\Models\CreateClientTokenRequest;
+use Square\Environments;
+use Square\Exceptions\SquareException;
 use Square\Models\Money;
 use Square\Exceptions\ApiException;
 use Square\Models\CreatePaymentLinkRequest;
@@ -20,6 +22,7 @@ use App\Mail\CustomerOrderMail;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
+use Square\Legacy\Environment;
 
 class CheckoutController extends Controller
 {
@@ -222,10 +225,13 @@ public function createSquarePayment(Request $request)
         ? config('services.square.live_access_token')
         : config('services.square.sandbox_access_token');
 
-    $client = SquareClient::builder()
-        ->accessToken($accessToken)
-        ->environment($mode === 'live' ? 'production' : 'sandbox')
-        ->build();
+     // --- NEW SDK STYLE ---
+     $client = new SquareClient(
+        token: $accessToken,
+        options: [
+            'baseUrl' => $mode === 'live' ? Environments::Production->value : Environments::Sandbox->value
+        ]
+    );
     
     $paymentsApi = $client->getPaymentsApi();
     $orderId = 'ORD-' . strtoupper(uniqid());
@@ -237,13 +243,10 @@ public function createSquarePayment(Request $request)
 
         $body = new CreatePaymentRequest(
             $request->source_id, // ← SQUARE PAYMENT TOKEN FROM JS
-            $money
+            $orderId
         );
 
-        // $body->setAmountMoney($money);
-
-        //Attach your own ID:
-        $body->setIdempotencyKey($orderId);
+        $body->setAmountMoney($money);
 
         $response = $paymentsApi->createPayment($body);
 
