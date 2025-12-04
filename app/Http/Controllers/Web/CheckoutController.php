@@ -11,7 +11,6 @@ use App\Models\PickupLocation;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 use Square\SquareClient;
 use Square\Models\CreateClientTokenRequest;
-use Square\Environment;
 use Square\Models\Money;
 use Square\Exceptions\ApiException;
 use Square\Models\CreatePaymentLinkRequest;
@@ -225,7 +224,7 @@ public function createSquarePayment(Request $request)
 
     $client = new SquareClient([
         'accessToken' => $accessToken,
-        'environment' => $mode === 'live' ? Environment::PRODUCTION : Environment::SANDBOX,
+        'environment' => $mode === 'live' ? 'production' : 'sandbox',
     ]);
 
     $paymentsApi = $client->getPaymentsApi();
