@@ -238,21 +238,21 @@ public function createSquarePayment(Request $request)
 
     $orderId = 'ORD-' . strtoupper(uniqid()); // fix missing var
 
-
-    $money = new Money();
-    $money->setAmount(intval($totalAmount * 100));
-    $money->setCurrency('GBP');
+    $money = [
+        'amount' => intval($totalAmount * 100), // smallest unit
+        'currency' => 'GBP',
+    ];
     
-
+    
    // Build the request using NEW SDK types
-   $createPaymentRequest = new CreatePaymentRequest();
-   $createPaymentRequest->setSourceId($request->source_id);
-   $createPaymentRequest->setIdempotencyKey($orderId);
-   $createPaymentRequest->setAmountMoney($money);
-   $createPaymentRequest->setAutocomplete(true);
-   $createPaymentRequest->setNote("Order $orderId");
-   $createPaymentRequest->setBuyerEmailAddress($request->customer_email);
-   
+   $createPaymentRequest = new CreatePaymentRequest([
+    'sourceId' => $request->source_id,
+    'idempotencyKey' => $orderId,
+    'amountMoney' => $money,
+    'autocomplete' => true,
+    'note' => "Order $orderId",
+    'buyerEmailAddress' => $request->customer_email,
+]);
 
         try {
             // ❗ NEW SDK METHOD — correct one
