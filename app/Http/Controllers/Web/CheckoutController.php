@@ -12,7 +12,7 @@ use Srmklive\PayPal\Services\PayPal as PayPalClient;
 use Square\SquareClient;
 use Square\Environments;
 use Square\Exceptions\ApiException;
-use Square\Models\CreatePaymentRequest;
+use Square\Payments\CreatePaymentRequest;
 use Square\Models\Money;
 use App\Mail\AdminOrderMail;
 use App\Mail\CustomerOrderMail;
@@ -214,6 +214,10 @@ public function createSquarePayment(Request $request)
     $cart = session()->get('cart', []);
     $totalAmount = $this->calculateTotal($cart, $request);
 
+    if ($totalAmount <= 0) {
+        return response()->json(['status' => 'failed', 'errors' => 'Invalid total'], 400);
+    }
+
     $mode = config('services.square.mode', 'sandbox');
 
     $accessToken = $mode === 'live'
@@ -228,39 +232,62 @@ public function createSquarePayment(Request $request)
         ]
     );
     
-    $paymentsApi = $client->payments;
+    $paymentsApi = $client->getPaymentsApi();
     $orderId = 'ORD-' . strtoupper(uniqid());
 
     try {
-        // $money = new Money();
-        // $money->setAmount((int)($totalAmount * 100)); // convert GBP → pence
-        // $money->setCurrency('GBP');
-
-        
         $paymentBody = [
             'source_id' => $request->source_id,
             'idempotency_key' => $orderId,
             'amount_money' => [
-                'amount' => (int)($totalAmount * 100), // convert to smallest currency unit
+                'amount' => (int)($totalAmount * 100),
                 'currency' => 'GBP'
-            ]
+            ],
+            'autocomplete' => true,
+            'buyer_email_address' => $request->customer_email,
+            'note' => "Order $orderId"
         ];
-        // $body->setAmountMoney($money);
 
-        $response = $paymentsApi->createPayment($paymentBody);
-
-        if ($response->isSuccess()) {
-            \Log::info('Square Payment Success', ['response' => $response->getResult()]);
-            $order = $this->createOrderAfterPayment($request, 'square', 'paid', $orderId);
-            return response()->json(['status' => 'success', 'order_id' => $order->id]);
+        if ($request->filled('customer_email')) {
+            $paymentBody['buyer_email_address'] = $request->customer_email;
         }
 
-        \Log::error('Square Payment Failed', ['errors' => $response->getErrors()]);
-        return response()->json(['status' => 'failed', 'errors' => $response->getErrors()]);
+        try {
+            // IMPORTANT: method name in REST SDK
+            $response = $paymentsApi->paymentsCreatePayment($payload);
+
+            if ($response->isSuccess()) {
+                $result = $response->getResult();
+
+                \Log::info('Square Payment Success', ['payment' => $result]);
+
+                $order = $this->createOrderAfterPayment(
+                    $request, 'square', 'paid', $idempotencyKey
+                );
+
+                return response()->json([
+                    'status' => 'success',
+                    'order_id' => $order->id,
+                    'payment' => $result,
+                ]);
+            }
+
+            \Log::error('Square Payment Failed', ['errors' => $response->getErrors()]);
+
+            return response()->json([
+                'status' => 'failed',
+                'errors' => $response->getErrors(),
+            ], 400);
+
+        } catch (\Exception $e) {
+            \Log::error('Square Exception', ['error' => $e->getMessage()]);
+            return response()->json(['status' => 'failed', 'errors' => $e->getMessage()], 500);
+        }
 
     } catch (\Exception $e) {
-        \Log::error('Square Exception', ['error' => $e->getMessage()]);
-        return response()->json(['status' => 'failed', 'errors' => $e->getMessage()]);
+        // ⬅️ THIS was the missing bracket/outer catch you needed
+        \Log::error('Square Outer Exception', ['error' => $e->getMessage()]);
+        return response()->json(['status' => 'failed', 'errors' => $e->getMessage()], 500);
     }
 }
 
