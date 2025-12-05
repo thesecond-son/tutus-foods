@@ -9,11 +9,14 @@ use App\Models\OrderItem;
 use App\Models\DeliveryOption;
 use App\Models\PickupLocation;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
-use Square\SquareClient;
+use Square\Apis\PaymentsApi;
 use Square\Environments;
+use Square\SquareClient;
+use Square\Core\Client\RawClient;
+use Square\Payments\PaymentsClient;
+use Square\Payments\Requests\CreatePaymentRequest;
+use Square\Types\Money;
 use Square\Exceptions\ApiException;
-use Square\Payments\CreatePaymentRequest;
-use Square\Models\Money;
 use App\Mail\AdminOrderMail;
 use App\Mail\CustomerOrderMail;
 use Filament\Notifications\Notification;
@@ -224,37 +227,36 @@ public function createSquarePayment(Request $request)
         ? config('services.square.live_access_token')
         : config('services.square.sandbox_access_token');
 
-     // --- NEW SDK STYLE ---
-     $client = new SquareClient(
-        token: $accessToken,
-        options: [
-            'baseUrl' => $mode === 'live' ? Environments::Production->value : Environments::Sandbox->value
-        ]
-    );
+    // NEW SDK CLIENT
+    $rawClient = new RawClient([
+        'accessToken' => $accessToken,
+        'environment' => $mode === 'live' ? \Square\Environments::Production : \Square\Environments::Sandbox,
+    ]);
+
+    // ❗ NEW SDK: instantiate the API manually
+    $paymentsClient = new PaymentsClient($rawClient);
+
+    $orderId = 'ORD-' . strtoupper(uniqid()); // fix missing var
+
+
+    $money = new Money();
+    $money->setAmount(intval($totalAmount * 100));
+    $money->setCurrency('GBP');
     
-    $paymentsApi = $client->getPaymentsApi();
-    $orderId = 'ORD-' . strtoupper(uniqid());
 
-    try {
-        $paymentBody = [
-            'source_id' => $request->source_id,
-            'idempotency_key' => $orderId,
-            'amount_money' => [
-                'amount' => (int)($totalAmount * 100),
-                'currency' => 'GBP'
-            ],
-            'autocomplete' => true,
-            'buyer_email_address' => $request->customer_email,
-            'note' => "Order $orderId"
-        ];
-
-        if ($request->filled('customer_email')) {
-            $paymentBody['buyer_email_address'] = $request->customer_email;
-        }
+   // Build the request using NEW SDK types
+   $createPaymentRequest = new CreatePaymentRequest();
+   $createPaymentRequest->setSourceId($request->source_id);
+   $createPaymentRequest->setIdempotencyKey($orderId);
+   $createPaymentRequest->setAmountMoney($money);
+   $createPaymentRequest->setAutocomplete(true);
+   $createPaymentRequest->setNote("Order $orderId");
+   $createPaymentRequest->setBuyerEmailAddress($request->customer_email);
+   
 
         try {
-            // IMPORTANT: method name in REST SDK
-            $response = $paymentsApi->paymentsCreatePayment($payload);
+            // ❗ NEW SDK METHOD — correct one
+            $response = $paymentsClient->createPayment($createPaymentRequest);
 
             if ($response->isSuccess()) {
                 $result = $response->getResult();
@@ -262,7 +264,7 @@ public function createSquarePayment(Request $request)
                 \Log::info('Square Payment Success', ['payment' => $result]);
 
                 $order = $this->createOrderAfterPayment(
-                    $request, 'square', 'paid', $idempotencyKey
+                    $request, 'square', 'paid', $orderId
                 );
 
                 return response()->json([
@@ -283,13 +285,8 @@ public function createSquarePayment(Request $request)
             \Log::error('Square Exception', ['error' => $e->getMessage()]);
             return response()->json(['status' => 'failed', 'errors' => $e->getMessage()], 500);
         }
-
-    } catch (\Exception $e) {
-        // ⬅️ THIS was the missing bracket/outer catch you needed
-        \Log::error('Square Outer Exception', ['error' => $e->getMessage()]);
-        return response()->json(['status' => 'failed', 'errors' => $e->getMessage()], 500);
-    }
 }
+
 
 public function getSquareConfig()
 {
