@@ -255,7 +255,7 @@ public function createSquarePayment(Request $request)
 
         try {
             // ❗ NEW SDK METHOD — correct one
-            $response = $paymentsClient->createPayment($createPaymentRequest);
+            $response = $paymentsClient->createPaymentRequest($createPaymentRequest);
 
             if ($response->isSuccess()) {
                 $result = $response->getResult();
