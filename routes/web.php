@@ -19,6 +19,17 @@ Route::get('/admin-test', function () {
     return "works";
 });
 
+Route::get('/debug-session', function () {
+    session(['test' => '123']);
+    return [
+        'session_get' => session('test'),
+        'cookie_sent' => request()->cookie(config('session.cookie')),
+        'session_id' => session()->getId(),
+        'all_cookies' => request()->cookies->all(),
+    ];
+});
+
+
 // Public pages
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::post('/newsletter/subscribe', [HomeController::class, 'subscribe'])->name('newsletter.subscribe');

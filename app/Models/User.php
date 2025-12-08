@@ -28,6 +28,7 @@ class User extends Authenticatable
     
     public function canAccessFilament(): bool
     {
+        \Log::debug('Filament access checked for user', ['user' => auth()->user()]);
         // return $this->hasRole('admin');
         return true;
     }

@@ -29,6 +29,14 @@ class AdminPanelProvider extends PanelProvider
         $panel->login()
             ->authGuard('web')
             ->auth(function ($user) {
+                // logger('AUTH CALLBACK HIT', ['user' => $user->email]);
+                
+                // logger('USER ROLES ON LIVE', [
+                //     'id' => $user->id,
+                //     'roles' => $user->roles->pluck('name')->toArray()
+                // ]);
+                
+                // return false; // Force always-fail
             logger('AUTH CHECK', [$user->email]);
             return $user->hasRole('admin');
         });        
