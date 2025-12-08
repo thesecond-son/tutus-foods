@@ -167,8 +167,8 @@
   <div class="max-w-6xl mx-auto text-center">
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 md:gap-10">
       @foreach([
-        ['collection4.webp','Sourdough Bread', 'https://www.tutusfoods.com/products/category/sourdough'],
-        ['collection5.webp','Sourdough Puff Puff', 'https://www.tutusfoods.com/products/category/sourdough-puff-puff'],
+        ['sourdough.webp','Sourdough Bread', 'https://www.tutusfoods.com/products/category/sourdough'],
+        ['puffpuff.webp','Sourdough Puff Puff', 'https://www.tutusfoods.com/products/category/sourdough-puff-puff'],
         ['collection1.webp','Celebration Cakes', 'https://tutusfoods.com/products/category/celebration-cakes'],
         ['collection2.webp','Loaf Cakes', 'https://tutusfoods.com/products/category/cupcakes'],
         ['collection3.webp','Floral Cupcakes', 'https://tutusfoods.com/products/category/cupcakes'],
