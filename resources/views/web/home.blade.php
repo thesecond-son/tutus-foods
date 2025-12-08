@@ -167,21 +167,27 @@
   <div class="max-w-6xl mx-auto text-center">
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 md:gap-10">
       @foreach([
-        ['collection1.webp','Celebration Cakes'],
-        ['collection2.webp','Loaf Cakes'],
-        ['collection3.webp','Floral Cupcakes'],
-        ['collection4.webp','Vegan Cupcakes'],
-        ['collection5.webp','Treats']
-      ] as [$img, $title])
-      <div class="circle-card flex flex-col items-center text-center fade-up">
+        ['collection4.webp','Sourdough Bread', 'https://www.tutusfoods.com/products/category/sourdough'],
+        ['collection5.webp','Sourdough Puff Puff', 'https://www.tutusfoods.com/products/category/sourdough-puff-puff'],
+        ['collection1.webp','Celebration Cakes', 'https://tutusfoods.com/products/category/celebration-cakes'],
+        ['collection2.webp','Loaf Cakes', 'https://tutusfoods.com/products/category/cupcakes'],
+        ['collection3.webp','Floral Cupcakes', 'https://tutusfoods.com/products/category/cupcakes'],
+      ] as [$img, $title, $url])
+      
+      <a href="{{ $url }}" class="circle-card flex flex-col items-center text-center fade-up group">
         <img src="{{ asset('images/'.$img) }}" alt="{{ $title }}"
-             class="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover mb-3 border-4 border-white shadow-sm">
-        <h3 class="text-base md:text-lg font-semibold text-gray-700">{{ $title }}</h3>
-      </div>
+             class="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover mb-3 border-4 border-white shadow-sm 
+                    transition-transform duration-300 group-hover:scale-110">
+        <h3 class="text-base md:text-lg font-semibold text-gray-700 transition-colors group-hover:text-[var(--brand-pink)]">
+          {{ $title }}
+        </h3>
+      </a>
+
       @endforeach
     </div>
   </div>
 </section>
+
 
 <!-- SIGNATURE BRANDS SECTION -->
 <section id="featured" class="bg-white py-20 md:py-28 px-6">
