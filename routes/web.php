@@ -15,6 +15,10 @@ use App\Mail\CustomerOrderMail;
 use Illuminate\Support\Facades\Mail;
 
 
+Route::get('/admin-test', function () {
+    return "works";
+});
+
 // Public pages
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::post('/newsletter/subscribe', [HomeController::class, 'subscribe'])->name('newsletter.subscribe');
