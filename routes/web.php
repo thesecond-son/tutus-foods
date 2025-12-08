@@ -19,15 +19,16 @@ Route::get('/admin-test', function () {
     return "works";
 });
 
-Route::get('/debug-session', function () {
-    session(['test' => '123']);
-    return [
-        'session_get' => session('test'),
-        'cookie_sent' => request()->cookie(config('session.cookie')),
-        'session_id' => session()->getId(),
-        'all_cookies' => request()->cookies->all(),
-    ];
+use Filament\Facades\Filament;
+
+Route::get('/debug-filament', function () {
+    dd([
+        'user' => Filament::auth()->user(),
+        'canAccess' => Filament::auth()->check(),
+        'panel' => filament()->getCurrentPanel()?->getId(),
+    ]);
 });
+
 
 
 // Public pages
