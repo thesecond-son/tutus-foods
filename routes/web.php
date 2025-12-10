@@ -21,14 +21,9 @@ Route::get('/admin-test', function () {
 
 use Filament\Facades\Filament;
 
-Route::get('/debug-filament', function () {
-    dd([
-        'user' => Filament::auth()->user(),
-        'canAccess' => Filament::auth()->check(),
-        'panel' => filament()->getCurrentPanel()?->getId(),
-    ]);
+Route::get('/test-auth', function() {
+    return auth()->check() ? auth()->user() : 'Not logged in';
 });
-
 
 
 // Public pages
