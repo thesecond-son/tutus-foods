@@ -38,7 +38,7 @@ class AdminPanelProvider extends PanelProvider
                 
                 // return false; // Force always-fail
             logger('AUTH CHECK', [$user->email]);
-            return $user->hasRole('admin');
+            return true;
         });        
 
         // 2️⃣ Configure other panel settings
