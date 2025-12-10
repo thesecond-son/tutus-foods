@@ -44,7 +44,7 @@ class AdminPanelProvider extends PanelProvider
         // 2️⃣ Configure other panel settings
         $panel->id('admin')
             ->default()
-            ->path('admin')
+            ->path('dashboard')
             ->colors([
                 'primary' => Color::Amber,
             ])
