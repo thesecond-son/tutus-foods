@@ -25,6 +25,12 @@ Route::get('/test-auth', function() {
     return auth()->check() ? auth()->user() : 'Not logged in';
 });
 
+Route::get('/login-test', function() {
+    $user = \App\Models\User::first();
+    auth()->login($user);
+    return 'Logged in as ' . $user->email;
+});
+
 
 // Public pages
 Route::get('/', [HomeController::class, 'index'])->name('home');

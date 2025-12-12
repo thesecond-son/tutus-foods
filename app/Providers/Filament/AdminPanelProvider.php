@@ -29,17 +29,14 @@ class AdminPanelProvider extends PanelProvider
         $panel->login()
             ->authGuard('web')
             ->auth(function ($user) {
-                // logger('AUTH CALLBACK HIT', ['user' => $user->email]);
                 
-                // logger('USER ROLES ON LIVE', [
-                //     'id' => $user->id,
-                //     'roles' => $user->roles->pluck('name')->toArray()
-                // ]);
-                
-                // return false; // Force always-fail
-            logger('AUTH CHECK', [$user->email]);
-            return true;
-        });        
+                    return true;
+        }); 
+
+        // logger('User email:', [$user->email]);
+
+                // Log the session data to see if it’s being persisted correctly
+        logger('Session data:', session()->all());       
 
         // 2️⃣ Configure other panel settings
         $panel->id('admin')
@@ -55,14 +52,15 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([AccountWidget::class, FilamentInfoWidget::class])
             ->middleware([
                 EncryptCookies::class,
-                AddQueuedCookiesToResponse::class,
-                StartSession::class,
-                AuthenticateSession::class,
-                ShareErrorsFromSession::class,
-                VerifyCsrfToken::class,
-                SubstituteBindings::class,
-                DisableBladeIconComponents::class,
-                DispatchServingFilamentEvent::class,
+    AddQueuedCookiesToResponse::class,
+    StartSession::class,
+    AuthenticateSession::class,
+    Authenticate::class,  // Make sure this is here so the user is authenticated before other middlewares
+    ShareErrorsFromSession::class,
+    VerifyCsrfToken::class,  // You can uncomment this once you confirm session is working
+    SubstituteBindings::class,
+    DisableBladeIconComponents::class,
+    DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([
                 Authenticate::class,

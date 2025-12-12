@@ -91,9 +91,9 @@ class CartController extends Controller
             session()->put('cart', $cart);
         }
 
-        if ($request->ajax()) {
-            return response()->json(['success' => true]);
-        }
+        // if ($request->ajax()) {
+        //     return response()->json(['success' => true]);
+        // }
 
         return back()->with('success', 'Item removed.');
     }
@@ -102,9 +102,9 @@ class CartController extends Controller
     {
         session()->forget('cart');
 
-        if ($request->ajax()) {
-            return response()->json(['success' => true]);
-        }
+        // if ($request->ajax()) {
+        //     return response('', 200);
+        // }
 
         return back()->with('success', 'Cart cleared.');
     }
