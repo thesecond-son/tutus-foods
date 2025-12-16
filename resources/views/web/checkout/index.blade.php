@@ -158,11 +158,11 @@
 
         <div id="paymentMethods" class="flex gap-4">
         <!-- Square -->
-        <!-- <div data-method="square"
+        <div data-method="square"
             class="payment-option flex items-center gap-2 border border-gray-300 rounded-lg p-3 cursor-pointer hover:border-pink-500 transition-all">
             <img src="{{ asset('images/square-logo.webp') }}" alt="Square" class="h-6">
           
-        </div> -->
+        </div>
 
         <!-- PayPal -->
         <div data-method="paypal"

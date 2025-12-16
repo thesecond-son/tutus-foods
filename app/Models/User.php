@@ -26,11 +26,11 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
     
-    public function canAccessFilament(): bool
-    {
-        \Log::debug('Filament access checked for user', ['user' => auth()->user()]);
-        // return $this->hasRole('admin');
-        return true;
-    }
+    // public function canAccessFilament(): bool
+    // {
+    //     \Log::debug('Filament access checked for user', ['user' => auth()->user()]);
+    //     // return $this->hasRole('admin');
+    //     return true;
+    // }
 
 }
