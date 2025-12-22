@@ -9,6 +9,6 @@ class Dashboard extends BaseDashboard
     public function getColumns(): int
 {
     return 2;
-}
+}            
 
 }

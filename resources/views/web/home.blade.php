@@ -200,7 +200,7 @@
       @foreach([
         ['cupcakes.webp', 'Tutu’s Cupcakes', 'Soft. Sweet. Perfectly crafted with love.', 'cupcakes'],
         ['sourdough.webp', 'Tutu’s Sourdough', 'Naturally leavened, wholesome, and full of flavor.', 'sourdough'],
-        ['puffpuff.webp', 'Sourdough Puff Puff', 'Crispy outside, fluffy inside — a modern twist.', 'sourdough-puff-puff'],
+        ['puff-puff-postal.webp', 'Sourdough Puff Puff', 'Crispy outside, fluffy inside — a modern twist.', 'sourdough-puff-puff'],
         ['pantry.webp', 'Tutu’s Pantry', 'Premium ingredients and spreads from our kitchen.', null],
       ] as [$img, $title, $desc, $slug])
 
