@@ -168,7 +168,7 @@
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 md:gap-10">
       @foreach([
         ['sourdough.webp','Sourdough Bread', 'https://www.tutusfoods.com/products/category/sourdough'],
-        ['puffpuff.webp','Sourdough Puff Puff', 'https://www.tutusfoods.com/products/category/sourdough-puff-puff'],
+        ['puffpuff-home.webp','Sourdough Puff Puff', 'https://www.tutusfoods.com/products/category/sourdough-puff-puff'],
         ['collection1.webp','Celebration Cakes', 'https://tutusfoods.com/products/category/celebration-cakes'],
         ['collection2.webp','Loaf Cakes', 'https://tutusfoods.com/products/category/cupcakes'],
         ['collection3.webp','Floral Cupcakes', 'https://tutusfoods.com/products/category/cupcakes'],
@@ -200,7 +200,7 @@
       @foreach([
         ['cupcakes.webp', 'Tutu’s Cupcakes', 'Soft. Sweet. Perfectly crafted with love.', 'cupcakes'],
         ['sourdough.webp', 'Tutu’s Sourdough', 'Naturally leavened, wholesome, and full of flavor.', 'sourdough'],
-        ['puff-puff-postal.webp', 'Sourdough Puff Puff', 'Crispy outside, fluffy inside — a modern twist.', 'sourdough-puff-puff'],
+        ['puffpuff-home.webp', 'Sourdough Puff Puff', 'Crispy outside, fluffy inside — a modern twist.', 'sourdough-puff-puff'],
         ['pantry.webp', 'Tutu’s Pantry', 'Premium ingredients and spreads from our kitchen.', null],
       ] as [$img, $title, $desc, $slug])
 
