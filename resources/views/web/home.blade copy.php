@@ -1,0 +1,427 @@
+@extends('layouts.app')
+
+@section('title', "Home - Tutu's Foods")
+
+@section('content')
+<style>
+  :root {
+    --brand-pink: #ff5887;
+    --brand-pink-light: #ff88a6;
+    --brand-bg: #fff8f9;
+    --header-h: 80px;
+  }
+
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--header-h);
+    background: #fff;
+    z-index: 50;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  main {
+    padding-top: var(--header-h);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Slides */
+  .slide {
+    position: absolute; inset: 0;
+    opacity: 0;
+    transition: opacity 1.2s ease-in-out;
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .slide.active { opacity: 1; z-index: 1; }
+
+  .circle-card img {
+    transition: transform .4s ease, box-shadow .4s ease;
+  }
+  .circle-card:hover img {
+    transform: scale(1.05);
+    box-shadow: 0 6px 25px rgba(255,88,135,0.25);
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+  }
+
+  @media (max-width: 768px) {
+    .slide-text {
+      padding: 1.5rem;
+    }
+  }
+
+  /* Fade-in used originally */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fadeIn {
+    animation: fadeIn 1.2s ease-out forwards;
+  }
+
+  /* NEW: soft card style used for Order Cut-off, Newsletter, and footer echoes */
+  .soft-card {
+    background: linear-gradient(180deg, rgba(255, 227, 234, 0.9), rgba(255, 244, 246, 0.95));
+    border-radius: 1rem;
+    border: 1px solid rgba(255,88,135,0.08);
+    box-shadow: 0 10px 30px rgba(15,15,15,0.04);
+  }
+
+  /* NEW: signature brand overlay style (edible + luxe) */
+  .brand-tile {
+    border-radius: 1rem;
+    overflow: hidden;
+    position: relative;
+    transition: transform .55s cubic-bezier(.2,.9,.3,1), box-shadow .55s;
+    box-shadow: 0 6px 18px rgba(15,15,15,0.06);
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.02));
+  }
+  .brand-tile:hover {
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: 0 18px 40px rgba(15,15,15,0.10);
+  }
+  .brand-tile .brand-caption {
+    background: linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.22));
+    padding: 1.25rem;
+  }
+  .brand-badge {
+    display:inline-block;
+    padding: .35rem .7rem;
+    border-radius:999px;
+    background: linear-gradient(90deg, rgba(255,88,135,0.95), rgba(255,136,166,0.9));
+    color: white;
+    font-weight: 700;
+    letter-spacing: .04em;
+    font-size: .72rem;
+  }
+
+  /* Scroll reveal (fade-up) */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity .7s ease-out, transform .7s ease-out;
+    will-change: opacity, transform;
+  }
+  .fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* small utility for Countdown numbers styling */
+  #christmas-countdown > div > div {
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: #b91c1c; /* red-700 */
+  }
+
+  /* minor responsive tweaks */
+  @media (min-width: 1024px) {
+    .brand-tile { height: 440px; }
+  }
+</style>
+
+<!-- HERO SECTION -->
+<section id="hero" class="relative w-full h-[90vh] md:h-screen overflow-hidden">
+
+  <!-- Background Slides -->
+  <div class="absolute inset-0">
+    <img src="{{ asset('images/hero1.jpg') }}" alt="Hero 1" class="slide active">
+    <img src="{{ asset('images/hero2.jpg') }}" alt="Hero 2" class="slide">
+    <img src="{{ asset('images/hero3.jpg') }}" alt="Hero 3" class="slide">
+  </div>
+
+  <!-- Softer Overlay -->
+  <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/30 z-10"></div>
+
+  <!-- Text content -->
+  <div class="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4 md:px-8">
+    <div class="max-w-3xl w-full px-6 py-10 md:px-12 md:py-14 rounded-3xl bg-white/15 border border-white/10 shadow-xl space-y-6 opacity-0 animate-fadeIn">
+      <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight">
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--brand-pink)] to-[var(--brand-pink-light)]">
+          Tutu’s Foods
+        </span>
+      </h1>
+
+      <p class="text-base md:text-lg text-gray-100 font-bold max-w-xl mx-auto leading-relaxed">
+        Honest, handcrafted food — inspired by tradition, perfected for today.
+      </p>
+
+      <a href="{{ url('/products') }}"
+         class="inline-flex items-center justify-center bg-[var(--brand-pink)] hover:bg-[#e04375] text-white font-semibold px-8 py-3 rounded-full shadow-md transition-transform transform hover:scale-105 duration-300">
+        Shop Now
+      </a>
+    </div>
+  </div>
+
+</section>
+
+<!-- COLLECTION SECTION -->
+<section id="collections" class="bg-[var(--brand-bg)] py-12 md:py-16 px-6">
+  <div class="max-w-6xl mx-auto text-center">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 md:gap-10">
+      @foreach([
+        ['sourdough.webp','Sourdough Bread', 'https://www.tutusfoods.com/products/category/sourdough'],
+        ['puffpuff-home.webp','Sourdough Puff Puff', 'https://www.tutusfoods.com/products/category/sourdough-puff-puff'],
+        ['collection1.webp','Celebration Cakes', 'https://tutusfoods.com/products/category/celebration-cakes'],
+        ['collection2.webp','Loaf Cakes', 'https://tutusfoods.com/products/category/cupcakes'],
+        ['collection3.webp','Floral Cupcakes', 'https://tutusfoods.com/products/category/cupcakes'],
+      ] as [$img, $title, $url])
+      
+      <a href="{{ $url }}" class="circle-card flex flex-col items-center text-center fade-up group">
+        <img src="{{ asset('images/'.$img) }}" alt="{{ $title }}"
+             class="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover mb-3 border-4 border-white shadow-sm 
+                    transition-transform duration-300 group-hover:scale-110">
+        <h3 class="text-base md:text-lg font-semibold text-gray-700 transition-colors group-hover:text-[var(--brand-pink)]">
+          {{ $title }}
+        </h3>
+      </a>
+
+      @endforeach
+    </div>
+  </div>
+</section>
+
+
+<!-- SIGNATURE BRANDS SECTION -->
+<section id="featured" class="bg-white py-20 md:py-28 px-6">
+  <div class="max-w-7xl mx-auto text-center">
+    <h2 class="text-3xl md:text-4xl font-bold mb-14 text-gray-900 tracking-tight fade-up">
+      Our Signature Brands
+    </h2>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 xl:gap-14">
+      @foreach([
+        ['cupcakes.webp', 'Tutu’s Cupcakes', 'Soft. Sweet. Perfectly crafted with love.', 'cupcakes'],
+        ['sourdough.webp', 'Tutu’s Sourdough', 'Naturally leavened, wholesome, and full of flavor.', 'sourdough'],
+        ['puffpuff-home.webp', 'Sourdough Puff Puff', 'Crispy outside, fluffy inside — a modern twist.', 'sourdough-puff-puff'],
+        ['pantry.webp', 'Tutu’s Pantry', 'Premium ingredients and spreads from our kitchen.', null],
+      ] as [$img, $title, $desc, $slug])
+
+      @php $isLive = !is_null($slug); @endphp
+
+      <div class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white fade-up h-[450px]">
+        @if($isLive)
+          <a href="{{ route('products.category', $slug) }}" class="absolute inset-0 z-20"></a>
+        @endif
+
+        <!-- Image -->
+        <img src="{{ asset('images/'.$img) }}" 
+             alt="{{ $title }}" 
+             class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105">
+
+        <!-- Gradient overlay to soften the lower section -->
+        <!-- <div class="absolute inset-0 bg-gradient-to-t from-white via-white/80 to-transparent"></div> -->
+
+        <!-- Fixed-height info panel -->
+        <div class="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm p-6 md:p-7 text-left flex flex-col justify-between h-40 rounded-b-2xl">
+          <div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-1">{{ $title }}</h3>
+            <p class="text-sm text-gray-600 leading-snug">{{ $desc }}</p>
+          </div>
+
+          @if($isLive)
+            <span class="inline-flex items-center gap-1.5 text-[var(--brand-pink,#ff5887)] text-sm font-semibold tracking-wide mt-4 group-hover:translate-x-1 transition-transform duration-300">
+              View More 
+              <i class="bi bi-arrow-right"></i>
+            </span>
+          @else
+            <span class="inline-block mt-4 text-gray-400 text-sm font-medium tracking-wide">
+              Coming Soon
+            </span>
+          @endif
+        </div>
+      </div>
+      @endforeach
+    </div>
+  </div>
+</section>
+
+
+<!-- CHRISTMAS SHOP SECTION -->
+<section id="shop-christmas" class="bg-red-50 py-24 px-6 relative overflow-hidden">
+  <div class="absolute inset-0 pointer-events-none">
+    <!-- Snowflakes in the background -->
+    <img src="{{ asset('images/snowflakes.webp') }}" alt="Snowflakes"
+         class="absolute inset-0 w-full h-full object-cover opacity-20 z-0">
+
+    <!-- Ornament on top -->
+    <img src="{{ asset('images/ornaments.webp') }}" alt="Christmas Ornament"
+         class="absolute inset-0 w-full m-auto opacity-20 z-10">
+  </div>
+
+  <div class="max-w-3xl mx-auto text-center relative z-10 space-y-6">
+    <h2 class="text-4xl md:text-5xl font-bold text-red-700 section-title">
+      Celebrate the Season with Tutu’s Foods
+    </h2>
+    <p class="text-gray-700 text-lg md:text-xl">
+      Discover handcrafted festive treats, seasonal delights, and holiday specials to make your Christmas extra joyful and delicious.
+    </p>
+
+    <!-- Countdown Timer -->
+    <div id="christmas-countdown" class="flex justify-center items-center gap-6 text-red-700 font-semibold text-lg md:text-xl my-6">
+      <div class="space-y-1">
+        <div id="days">00</div>
+        <div class="text-sm font-normal">Days</div>
+      </div>
+      <div class="space-y-1">
+        <div id="hours">00</div>
+        <div class="text-sm font-normal">Hours</div>
+      </div>
+      <div class="space-y-1">
+        <div id="minutes">00</div>
+        <div class="text-sm font-normal">Minutes</div>
+      </div>
+      <div class="space-y-1">
+        <div id="seconds">00</div>
+        <div class="text-sm font-normal">Seconds</div>
+      </div>
+    </div>
+
+    <a href="{{ route('shop-christmas') }}"
+       class="inline-block bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-4 rounded-full shadow-md text-lg transition-transform transform hover:scale-105 duration-300">
+      Shop Christmas Collection
+    </a>
+  </div>
+</section>
+
+<!-- ORDER CUT-OFF SECTION -->
+<section id="order-times" class="bg-gradient-to-b from-[var(--brand-bg)] to-[#ffe4ea] py-20 px-6 text-center">
+  <div class="max-w-3xl mx-auto fade-up">
+    <div class="soft-card p-8 sm:p-10">
+      <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
+        Ready to Get Your Orders?
+      </h2>
+
+      <p class="text-gray-700 text-base md:text-lg font-medium mb-4">
+        Our Sourdough Order Cut-Off Times:
+      </p>
+
+      <ul class="text-gray-600 text-sm md:text-base leading-relaxed space-y-1 mb-10">
+        <li>Tuesday Pickup (Hockley): Order by Sunday night</li>
+        <li>Friday Pickup (Hockley): Order by Wednesday night</li>
+        <li>Sunday Pickup (Stratford, London): Order by Friday night</li>
+      </ul>
+
+      <a href="#footer"
+         class="inline-block bg-black text-white text-sm md:text-base font-semibold px-7 py-2.5 rounded-md transition-all duration-300 hover:bg-[var(--brand-pink)] hover:text-white scroll-smooth">
+        Contact Us
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section id="newsletter"
+         class="relative bg-cover bg-center py-24 px-6 md:px-10"
+         style="background-image: url('{{ asset('images/newsletter-bg.jpg') }}');">
+
+  <!-- Overlay -->
+  <div class="absolute inset-0 bg-white/70 backdrop-blur-sm"></div>
+
+  <div class="relative max-w-2xl mx-auto bg-white shadow-xl rounded-2xl p-10 text-center z-10">
+    @if(session('success'))
+      <div class="mb-4 p-3 text-green-700 bg-green-100 border border-green-300 rounded-md">
+        {{ session('success') }}
+      </div>
+    @endif
+
+    <h3 class="text-xl md:text-2xl font-bold mb-6 text-gray-800">
+      Subscribe To Our Newsletter
+    </h3>
+
+    <p class="text-gray-600 mb-6 text-sm md:text-base">
+      Get updates on new products and exclusive offers straight to your inbox.
+    </p>
+
+    <form action="{{ route('newsletter.subscribe') }}" method="POST" class="space-y-5">
+      @csrf
+      <div class="text-left">
+        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+        <input type="email" id="email" name="email" required
+               class="w-full border border-gray-300 rounded-md px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-[var(--brand-pink)] transition-all" />
+      </div>
+
+      <div class="flex items-center text-left">
+        <input type="checkbox" id="subscribe" name="subscribe"
+               class="h-4 w-4 text-[var(--brand-pink)] focus:ring-[var(--brand-pink)] border-gray-300 rounded">
+        <label for="subscribe" class="ml-2 text-sm text-gray-700">
+          Yes, subscribe me to your newsletter.
+        </label>
+      </div>
+
+      <button type="submit"
+              class="w-full bg-[var(--brand-pink)] hover:bg-[var(--brand-pink-light)] text-white font-semibold py-2.5 rounded-md text-base transition-all duration-300">
+        Submit
+      </button>
+    </form>
+  </div>
+</section>
+
+@endsection
+
+@push('scripts')
+<script defer>
+(() => {
+  const slides = document.querySelectorAll('.slide');
+  let i = 0;
+  const next = () => {
+    slides[i].classList.remove('active');
+    i = (i + 1) % slides.length;
+    slides[i].classList.add('active');
+  };
+  setInterval(next, 4000);
+})();
+
+// Countdown to second week of December (e.g., Dec 8)
+const countdownDate = new Date(new Date().getFullYear(), 11, 8, 0, 0, 0).getTime(); // Dec 8 midnight
+const countdownElements = {
+  days: document.getElementById('days'),
+  hours: document.getElementById('hours'),
+  minutes: document.getElementById('minutes'),
+  seconds: document.getElementById('seconds')
+};
+
+function updateCountdown() {
+  const now = new Date().getTime();
+  const distance = countdownDate - now;
+
+  if (distance < 0) return; // Countdown finished
+
+  const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+  if (countdownElements.days) countdownElements.days.textContent = String(days).padStart(2,'0');
+  if (countdownElements.hours) countdownElements.hours.textContent = String(hours).padStart(2,'0');
+  if (countdownElements.minutes) countdownElements.minutes.textContent = String(minutes).padStart(2,'0');
+  if (countdownElements.seconds) countdownElements.seconds.textContent = String(seconds).padStart(2,'0');
+}
+
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+/* Lightweight reveal-on-scroll for fade-up elements (minimal JS) */
+(function() {
+  const els = document.querySelectorAll('.fade-up');
+  if (!els.length) return;
+  const reveal = () => {
+    els.forEach(el => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 0.85) el.classList.add('visible');
+    });
+  };
+  window.addEventListener('scroll', reveal, { passive: true });
+  window.addEventListener('resize', reveal);
+  window.addEventListener('load', reveal);
+  reveal();
+})();
+</script>
+@endpush

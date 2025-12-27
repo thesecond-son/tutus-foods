@@ -5,12 +5,18 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\NewsletterSubscriber;
+use App\Models\HomepageSetting;
 
 class HomeController extends Controller
 {
     public function index()
     {
-        return view('web.home');
+
+        $homepage = HomepageSetting::firstOrFail();
+
+        return view('web.home', [
+            'homepage' => $homepage,
+        ]);
     }
 
     public function subscribe(Request $request)

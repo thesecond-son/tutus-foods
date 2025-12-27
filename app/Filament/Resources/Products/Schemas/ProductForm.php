@@ -18,7 +18,7 @@ class ProductForm
         return $schema
             ->components([
                 TextInput::make('sku')
-                    ->label('SKU')
+                     ->label('SKU')
                     ->default(null),
                 TextInput::make('name')
                     ->required(),

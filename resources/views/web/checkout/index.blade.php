@@ -121,7 +121,7 @@
               <option value="">Select Delivery Option</option>
               @foreach($deliveryOptions as $option)
                 <option value="{{ $option->id }}" data-type="{{ $option->calculated_by }}" data-rate="{{ $option->rate }}">
-                {{ $option->name }} - £{{ $option->rate }}
+                {{ $option->name }}
                 </option>
               @endforeach
             </select>

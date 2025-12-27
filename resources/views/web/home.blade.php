@@ -132,9 +132,11 @@
 
   <!-- Background Slides -->
   <div class="absolute inset-0">
-    <img src="{{ asset('images/hero1.jpg') }}" alt="Hero 1" class="slide active">
-    <img src="{{ asset('images/hero2.jpg') }}" alt="Hero 2" class="slide">
-    <img src="{{ asset('images/hero3.jpg') }}" alt="Hero 3" class="slide">
+    @foreach($homepage->hero['slides'] as $index => $slide)
+      <img src="{{ asset('storage/'.$slide['image']) }}"
+           class="slide {{ $index === 0 ? 'active' : '' }}"
+           alt="Hero slide {{ $index + 1 }}">
+    @endforeach
   </div>
 
   <!-- Softer Overlay -->
@@ -145,17 +147,17 @@
     <div class="max-w-3xl w-full px-6 py-10 md:px-12 md:py-14 rounded-3xl bg-white/15 border border-white/10 shadow-xl space-y-6 opacity-0 animate-fadeIn">
       <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight">
         <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--brand-pink)] to-[var(--brand-pink-light)]">
-          Tutu’s Foods
+        {{ $homepage->hero['title'] }}
         </span>
       </h1>
 
       <p class="text-base md:text-lg text-gray-100 font-bold max-w-xl mx-auto leading-relaxed">
-        Honest, handcrafted food — inspired by tradition, perfected for today.
+      {{ $homepage->hero['subtitle'] }}
       </p>
 
       <a href="{{ url('/products') }}"
          class="inline-flex items-center justify-center bg-[var(--brand-pink)] hover:bg-[#e04375] text-white font-semibold px-8 py-3 rounded-full shadow-md transition-transform transform hover:scale-105 duration-300">
-        Shop Now
+         {{ $homepage->hero['button_text'] }}
       </a>
     </div>
   </div>
@@ -166,24 +168,15 @@
 <section id="collections" class="bg-[var(--brand-bg)] py-12 md:py-16 px-6">
   <div class="max-w-6xl mx-auto text-center">
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 md:gap-10">
-      @foreach([
-        ['sourdough.webp','Sourdough Bread', 'https://www.tutusfoods.com/products/category/sourdough'],
-        ['puffpuff-home.webp','Sourdough Puff Puff', 'https://www.tutusfoods.com/products/category/sourdough-puff-puff'],
-        ['collection1.webp','Celebration Cakes', 'https://tutusfoods.com/products/category/celebration-cakes'],
-        ['collection2.webp','Loaf Cakes', 'https://tutusfoods.com/products/category/cupcakes'],
-        ['collection3.webp','Floral Cupcakes', 'https://tutusfoods.com/products/category/cupcakes'],
-      ] as [$img, $title, $url])
-      
-      <a href="{{ $url }}" class="circle-card flex flex-col items-center text-center fade-up group">
-        <img src="{{ asset('images/'.$img) }}" alt="{{ $title }}"
-             class="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover mb-3 border-4 border-white shadow-sm 
-                    transition-transform duration-300 group-hover:scale-110">
-        <h3 class="text-base md:text-lg font-semibold text-gray-700 transition-colors group-hover:text-[var(--brand-pink)]">
-          {{ $title }}
+    @foreach($homepage->favourites as $item)
+      <a href="{{ $item['url'] }}" class="group flex flex-col items-center">
+        <img src="{{ asset('storage/'.$item['image']) }}"
+             class="w-28 h-28 rounded-full object-cover border-4 border-white shadow transition group-hover:scale-110">
+        <h3 class="mt-3 text-lg font-semibold group-hover:text-[var(--brand-pink)]">
+          {{ $item['title'] }}
         </h3>
       </a>
-
-      @endforeach
+    @endforeach
     </div>
   </div>
 </section>
