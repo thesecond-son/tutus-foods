@@ -50,6 +50,9 @@ class CheckoutController extends Controller
             'delivery_type' => 'required|in:pickup,delivery',
             'delivery_option_id' => 'nullable|exists:delivery_options,id',
             'delivery_address' => 'nullable|string|max:500',
+            'delivery_town' => 'nullable|string|max:500',
+            'delivery_postcode' => 'nullable|string|max:500',
+            'delivery_fee' => 'nullable|numeric|min:0',
             'pickup_location_id' => 'nullable|exists:pickup_locations,id',
             'pickup_date' => 'nullable|date',
             'pickup_time' => 'nullable|string',
@@ -69,6 +72,9 @@ class CheckoutController extends Controller
                 'delivery_type' => $request->delivery_type,
                 'delivery_option_id' => $request->delivery_option_id,
                 'delivery_address' => $request->delivery_address,
+                'delivery_town' => $request->delivery_town,
+                'delivery_postcode' => $request->delivery_postcode,
+                'delivery_fee' => $request->delivery_fee ?? 0,
                 'pickup_location_id' => $request->pickup_location_id,
                 'pickup_date' => $request->pickup_date,
                 'pickup_time' => $request->pickup_time,
@@ -100,7 +106,7 @@ class CheckoutController extends Controller
             // REGISTER EMAILS HERE (inside transaction)
     DB::afterCommit(function () use ($order) {
         Mail::to($order->customer_email)->send(new CustomerOrderMail($order));
-        Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
+        // Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
         // \Log::info('Email sent AFTER COMMIT for order ' . $order->order_number);
     });
     
@@ -347,6 +353,9 @@ public function getSquareConfig()
         'delivery_type' => 'required|in:pickup,delivery',
         'delivery_option_id' => 'nullable|exists:delivery_options,id',
         'delivery_address' => 'nullable|string|max:500',
+        'delivery_town' => 'nullable|string|max:500',
+        'delivery_postcode' => 'nullable|string|max:500',
+        'delivery_fee' => 'nullable|numeric|min:0',
         'pickup_location_id' => 'nullable|exists:pickup_locations,id',
         'pickup_date' => 'nullable|date',
         'pickup_time' => 'nullable|string',
@@ -367,6 +376,9 @@ public function getSquareConfig()
             'delivery_type' => $request->delivery_type,
             'delivery_option_id' => $request->delivery_option_id,
             'delivery_address' => $request->delivery_address,
+            'delivery_town' => $request->delivery_town,
+            'delivery_postcode' => $request->delivery_postcode,
+            'delivery_fee' => $request->delivery_fee ?? 0,
             'pickup_location_id' => $request->pickup_location_id,
             'pickup_date' => $request->pickup_date,
             'pickup_time' => $request->pickup_time,

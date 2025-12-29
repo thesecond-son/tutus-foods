@@ -12,9 +12,11 @@ class HomeController extends Controller
     public function index()
     {
 
-     
+        $homepage = HomepageSetting::firstOrFail();
 
-        return view('web.home');
+        return view('web.home', [
+            'homepage' => $homepage,
+        ]);
     }
 
     public function subscribe(Request $request)

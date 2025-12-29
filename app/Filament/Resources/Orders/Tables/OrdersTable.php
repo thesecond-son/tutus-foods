@@ -35,6 +35,12 @@ class OrdersTable
                     ->numeric()
                     ->sortable()
                     ->searchable(),
+                TextColumn::make('delivery_address')
+                    ->label('Delivery Address'),
+                TextColumn::make('delivery_town')
+                    ->label('Delivery Town'),
+                TextColumn::make('delivery_postcode')
+                    ->label('Delivery Postcode'),
                 TextColumn::make('pickupLocation.name')
                     ->label('Pickup Location')
                     ->numeric()

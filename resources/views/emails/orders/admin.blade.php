@@ -30,6 +30,8 @@
 
                         @if ($order->delivery_type === 'delivery')
                         <p style="margin:6px 0; font-size:0.95rem;"><strong>Delivery Address:</strong> <span style="color:#ff5887; font-weight:600;">{{ $order->delivery_address }}</span></p>
+                        <p style="margin:6px 0; font-size:0.95rem;"><strong>Delivery Town:</strong> <span style="color:#ff5887; font-weight:600;">{{ $order->delivery_town }}</span></p>
+                        <p style="margin:6px 0; font-size:0.95rem;"><strong>Delivery Postcode:</strong> <span style="color:#ff5887; font-weight:600;">{{ $order->delivery_postcode }}</span></p>
                         @else
                         <p style="margin:6px 0; font-size:0.95rem;"><strong>Pickup Location:</strong> <span style="color:#ff5887; font-weight:600;">{{ optional($order->pickupLocation)->name }}</span></p>
                         <p style="margin:6px 0; font-size:0.95rem;"><strong>Pickup Date:</strong> <span style="color:#ff5887; font-weight:600;">{{ $order->pickup_date }}</span></p>
@@ -75,7 +77,7 @@
                 <!-- CTA Button -->
                 <tr>
                     <td align="center" style="padding:25px 0;">
-                        <a href="{{ url('https://tutusfoods.com/admin/orders/' . $order->id) }}" style="background-color:#ff5887; color:#ffffff; text-decoration:none; padding:12px 22px; border-radius:6px; font-weight:bold; display:inline-block;">
+                        <a href="{{ url('https://tutusfoods.com/dashboard/orders/' . $order->id) }}" style="background-color:#ff5887; color:#ffffff; text-decoration:none; padding:12px 22px; border-radius:6px; font-weight:bold; display:inline-block;">
                             View Order in Admin
                         </a>
                     </td>

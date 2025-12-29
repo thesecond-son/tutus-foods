@@ -48,6 +48,8 @@
               <p style="margin:6px 0;"><strong>Delivery Type:</strong> {{ $order->delivery_type }}</p>
               @if ($order->delivery_type === 'delivery')
               <p style="margin:6px 0;"><strong>Delivery Address:</strong> {{ $order->delivery_address }}</p>
+              <p style="margin:6px 0;"><strong>Delivery Town:</strong> {{ $order->delivery_town }}</p>
+              <p style="margin:6px 0;"><strong>Delivery Postcode:</strong> {{ $order->delivery_postcode }}</p>
               @else
               <p style="margin:6px 0;"><strong>Pickup Location:</strong> {{ optional($order->pickupLocation)->name }}</p>
               <p style="margin:6px 0;"><strong>Pickup Date:</strong> {{ $order->pickup_date }}</p>

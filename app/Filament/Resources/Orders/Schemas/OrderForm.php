@@ -42,6 +42,12 @@ class OrderForm
                 Textarea::make('delivery_address')
                     ->default(null)
                     ->columnSpanFull(),
+                Textarea::make('delivery_town')
+                    ->default(null)
+                    ->columnSpanFull(),
+                Textarea::make('delivery_postcode')
+                    ->default(null)
+                    ->columnSpanFull(),
                 TextInput::make('pickup_location_id')
                     ->numeric()
                     ->default(null),

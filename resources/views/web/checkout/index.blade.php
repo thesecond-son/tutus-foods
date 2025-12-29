@@ -115,7 +115,13 @@
         {{-- DELIVERY BLOCK --}}
         <div id="method_block" class="mt-3 space-y-5">
           <div id="delivery_address_container" class="hidden space-y-3">
-            <textarea name="delivery_address" id="delivery_address" placeholder="Delivery Address" class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm resize-none focus:ring-2 focus:ring-[var(--brand-pink)] outline-none"></textarea>
+            <textarea name="delivery_address" id="delivery_address" placeholder="Delivery Address" required class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm resize-none focus:ring-2 focus:ring-[var(--brand-pink)] outline-none"></textarea>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <textarea name="delivery_town" id="delivery_town" placeholder="Town" required class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm resize-none focus:ring-2 focus:ring-[var(--brand-pink)] outline-none"></textarea>
+                <textarea name="delivery_postcode" id="delivery_postcode" placeholder="Postcode" required class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm resize-none focus:ring-2 focus:ring-[var(--brand-pink)] outline-none"></textarea>
+            </div>
+
 
             <select name="delivery_option_id" id="delivery_option_id" class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[var(--brand-pink)] outline-none">
               <option value="">Select Delivery Option</option>
@@ -252,6 +258,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- DOM refs ---
     const deliveryTypeSelect = document.getElementById('delivery_type');
     const deliveryAddressContainer = document.getElementById('delivery_address_container');
+    const deliveryAddressInput = document.getElementById('delivery_address');
+    const deliveryTownInput = document.getElementById('delivery_town');
+    const deliveryPostcodeInput = document.getElementById('delivery_postcode');
+
     const pickupContainer = document.getElementById('pickup_container');
     const pickupLocationSelects = document.querySelectorAll('#pickup_container select, #pickup_container input[type="date"]');
     const pickupLocationSelect = document.querySelector('#pickup_container select[name="pickup_location_id"]');
@@ -310,6 +320,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- state ---
     let subtotal = Object.values(cart).reduce((sum, p) => sum + (parseFloat(p.price) || 0) * (p.quantity || 0), 0);
     let deliveryFee = 0;
+    let finalTotal = 0;
     let fpInstance = null;
     let paypalLoaded = false;
     let squareLoaded = false;
@@ -391,7 +402,12 @@ pickupDateInput.addEventListener('change', updatePickupTimeSlots);
 
         // Delivery: must pick delivery option
         if (type === "delivery") {
-            return deliveryOptionSelect?.value;
+            return ( 
+            deliveryAddressInput?.value.trim() &&
+            deliveryTownInput?.value.trim() &&
+            deliveryPostcodeInput?.value.trim() &&
+            deliveryOptionSelect?.value
+            );
         }
 
         return false;
@@ -414,6 +430,9 @@ pickupDateInput.addEventListener('change', updatePickupTimeSlots);
     if (deliveryTypeSelect) deliveryTypeSelect.addEventListener('change', toggleMethodBlocks);
     pickupDateInput?.addEventListener('change', togglePaymentAccess);
     pickupTimeSelect?.addEventListener('change', togglePaymentAccess);
+    deliveryAddressInput?.addEventListener('input', togglePaymentAccess);
+    deliveryTownInput?.addEventListener('input', togglePaymentAccess);
+    deliveryPostcodeInput?.addEventListener('input', togglePaymentAccess);
     deliveryOptionSelect?.addEventListener('change', togglePaymentAccess);
     deliveryTypeSelect?.addEventListener('change', togglePaymentAccess);
 
@@ -533,10 +552,17 @@ function loadSquareButton() {
         customer_last_name: document.querySelector('input[name="customer_last_name"]').value,
         customer_phone: document.querySelector('input[name="customer_phone"]').value,
         delivery_type: document.querySelector('select[name="delivery_type"]').value,
+        
+        delivery_address: document.querySelector('textarea[name="delivery_address"]')?.value ?? null,
+        delivery_town: document.querySelector('textarea[name="delivery_town"]')?.value ?? null,
+        delivery_postcode: document.querySelector('textarea[name="delivery_postcode"]')?.value ?? null,
+
         delivery_option_id: document.getElementById('delivery_option_id')?.value ?? null,
         pickup_location_id: document.querySelector('#pickup_container select[name="pickup_location_id"]')?.value ?? null,
         pickup_date: document.getElementById('pickup_date')?.value ?? null,
-        pickup_time: document.querySelector('#pickup_container select[name="pickup_time"]')?.value ?? null
+        pickup_time: document.querySelector('#pickup_container select[name="pickup_time"]')?.value ?? null,
+
+        delivery_fee: deliveryFee
     };
 }
 
@@ -591,6 +617,7 @@ document.getElementById('sq-pay').addEventListener('click', async () => {
         },
         body: JSON.stringify({
             source_id: result.token,
+            delivery_fee: deliveryFee,
             ...collectCustomerInfo()
         })
     });
@@ -678,10 +705,17 @@ document.getElementById('sq-pay').addEventListener('click', async () => {
                 customer_last_name: lastNameEl.value,
                 customer_phone: phoneEl.value,
                 delivery_type: deliveryTypeEl.value,
+
+                delivery_address: document.querySelector('textarea[name="delivery_address"]')?.value ?? null,
+                delivery_town: document.querySelector('textarea[name="delivery_town"]')?.value ?? null,
+                delivery_postcode: document.querySelector('textarea[name="delivery_postcode"]')?.value ?? null,
+
                 delivery_option_id: deliveryOptionSelect?.value ?? null,
                 pickup_location_id: pickupLocationSelect?.value ?? null,
                 pickup_date: pickupDateInput?.value ?? null,
-                pickup_time: pickupTimeSelect?.value ?? null
+                pickup_time: pickupTimeSelect?.value ?? null,
+
+                delivery_fee: deliveryFee
             };
 
                 return fetch("{{ route('checkout.paypal.capture') }}?order_id=" + data.orderID, {

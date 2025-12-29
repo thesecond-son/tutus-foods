@@ -65,10 +65,10 @@
                 <span>£{{ number_format($subtotal, 2) }}</span>
             </div>
 
-            @if($order->delivery_type === 'delivery')
+            @if($order->delivery_fee > 0)
                 <div class="flex justify-between text-sm text-gray-700">
                     <span>Delivery</span>
-                    <span>£{{ number_format($deliveryFee, 2) }}</span>
+                    <span>£{{ number_format($order->delivery_fee, 2) }}</span>
                 </div>
             @endif
 

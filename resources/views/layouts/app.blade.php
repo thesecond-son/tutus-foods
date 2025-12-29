@@ -298,18 +298,16 @@ async function clearCart() {
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#ff5887]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h2l3.6 7.59a1 1 0 01-.36 1.32l-1.9 1.13a11.05 11.05 0 005.17 5.17l1.13-1.9a1 1 0 011.32-.36L19 19v2a1 1 0 01-1 1A17 17 0 013 5z"/>
             </svg>
-            <span>+44 (0)20 3289 4678</span>
+            <span>{{ $homepage->footer['phone'] }}</span>
           </li>
           <li class="flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#ff5887]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12H8m8 0l-4-4m4 4l-4 4m12 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span>info@tutuscupcakes.com</span>
+            <span>{{ $homepage->footer['email'] }}</span>
           </li>
           <li>
-            Tutu’s Cupcake Studio, Unit 5,<br>
-            Foundry Business Park, Station Approach,<br>
-            Hockley SS5 4HS
+          {{ $homepage->footer['address'] }}
           </li>
         </ul>
       </div>
@@ -320,9 +318,9 @@ async function clearCart() {
       <div>
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Opening Hours</h3>
         <ul class="text-sm text-gray-800 space-y-2">
-          <li>Monday to Friday - 9:30am to 5:30pm</li>
-          <li>Saturday - 10am to 1pm</li>
-          <li>Sunday – Closed</li>
+        @foreach($homepage->footer['opening_hours'] as $hours)
+    <li>{{ $hours['days'] }}: {{ $hours['time'] }}</li>
+  @endforeach
         </ul>
       </div>
     </div>

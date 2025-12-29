@@ -28,9 +28,15 @@ class OrderInfolist
                     ->label('Delivery Option')
                     ->getStateUsing(fn($record) => $record->deliveryOption?->name ?? '-'),
                 TextEntry::make('delivery_address')
-                    ->placeholder('-')
+                    ->placeholder('Delivery Address')
                     ->columnSpanFull(),
-                    TextEntry::make('pickup_location_id')
+                TextEntry::make('delivery_town')
+                    ->placeholder('Delivery Town')
+                    ->columnSpanFull(),
+                TextEntry::make('delivery_postcode')
+                    ->placeholder('Delivery Postcode')
+                    ->columnSpanFull(),
+                TextEntry::make('pickup_location_id')
                     ->label('Pickup Location')
                     ->getStateUsing(fn($record) => $record->pickupLocation?->name ?? '-')
                     ->placeholder('-'),
