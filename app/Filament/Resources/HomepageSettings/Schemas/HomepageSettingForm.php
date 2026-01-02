@@ -38,8 +38,10 @@ class HomepageSettingForm
                         ->schema([
                             FileUpload::make('image')
                                 ->image()
+                                ->disk('public')
                                 ->directory('homepage/hero')
                                 ->imagePreviewHeight(120)
+                                ->visibility('public')
                                 ->required(),
                         ])
                         ->minItems(3)
@@ -55,7 +57,9 @@ class HomepageSettingForm
                         ->schema([
                             FileUpload::make('image')
                                 ->image()
+                                ->disk('public')
                                 ->directory('homepage/favourites')
+                                ->visibility('public')
                                 ->imagePreviewHeight(100)
                                 ->required(),
 
@@ -78,7 +82,9 @@ class HomepageSettingForm
                         ->schema([
                             FileUpload::make('image')
                                 ->image()
+                                ->disk('public')
                                 ->directory('homepage/brands')
+                                ->visibility('public')
                                 ->imagePreviewHeight(150)
                                 ->required(),
 
@@ -116,6 +122,7 @@ class HomepageSettingForm
                     FileUpload::make('footer.image')
                         ->label('Footer Logo')
                         ->image()
+                        ->disk('public')
                         ->directory('homepage/footer')
                         ->visibility('public')
                         ->imagePreviewHeight(80),
