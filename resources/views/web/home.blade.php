@@ -169,10 +169,11 @@
   <div class="max-w-6xl mx-auto text-center">
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 md:gap-10">
     @foreach($homepage->favourites as $item)
-      <a href="{{ $item['url'] }}" class="group flex flex-col items-center">
-        <img src="{{ asset('storage/'.$item['image']) }}"
-             class="w-28 h-28 rounded-full object-cover border-4 border-white shadow transition group-hover:scale-110">
-        <h3 class="mt-3 text-lg font-semibold group-hover:text-[var(--brand-pink)]">
+      <a href="{{ $item['url'] }}" class="circle-card flex flex-col items-center text-center fade-up group">
+        <img src="{{ asset('storage/'.$item['image']) }}" alt="{{ $item['title'] }}"
+             class="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover mb-3 border-4 border-white shadow-sm 
+                      transition-transform duration-300 group-hover:scale-110">
+        <h3 class="text-base md:text-lg font-semibold text-gray-700 transition-colors group-hover:text-[var(--brand-pink)]">
           {{ $item['title'] }}
         </h3>
       </a>
