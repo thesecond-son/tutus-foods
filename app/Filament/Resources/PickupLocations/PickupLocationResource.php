@@ -55,4 +55,11 @@ class PickupLocationResource extends Resource
             'edit' => EditPickupLocation::route('/{record}/edit'),
         ];
     }
+
+    //Access Management
+    public static function canAccess(): bool
+    {
+        return auth()->user()->hasRole('admin');
+    }
+
 }

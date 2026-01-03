@@ -55,4 +55,10 @@ class DeliveryOptionResource extends Resource
             'edit' => EditDeliveryOption::route('/{record}/edit'),
         ];
     }
+
+    //Access Management
+    public static function canAccess(): bool
+    {
+        return auth()->user()->hasRole('admin');
+    }
 }

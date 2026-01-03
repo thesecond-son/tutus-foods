@@ -55,4 +55,10 @@ class BlogResource extends Resource
             'edit' => EditBlog::route('/{record}/edit'),
         ];
     }
+
+    //Access Management
+    public static function canAccess(): bool
+    {
+        return auth()->user()->hasRole('admin');
+    }
 }

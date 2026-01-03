@@ -55,4 +55,10 @@ class CategoryResource extends Resource
             'edit' => EditCategory::route('/{record}/edit'),
         ];
     }
+
+    //Access Management
+    public static function canAccess(): bool
+    {
+        return auth()->user()->hasRole('admin');
+    }
 }

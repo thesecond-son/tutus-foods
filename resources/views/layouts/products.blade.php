@@ -5,7 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
-    <title>{{ config('app.name', 'Tutu’s Foods') }}</title>
+    <title>@yield('title', 'Products')</title>
+
+    <meta name="description" content="@yield('meta_description', 'Browse handcrafted baked goods and pantry favourites from Tutu’s Foods.')">
+
+    <link rel="canonical" href="{{ url()->current() }}">
+    <meta name="robots" content="index, follow">
+
+    <meta name="googlebot" content="noindex,follow">
 
     <!-- Tailwind CSS -->
     <!-- @vite(['resources/css/app.css', 'resources/js/app.js']) -->

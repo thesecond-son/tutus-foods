@@ -19,15 +19,20 @@ class OrdersTable
                 TextColumn::make('order_number')
                     ->searchable(),
                 TextColumn::make('customer_email')
-                    ->searchable(),
+                    ->searchable()
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
                 TextColumn::make('customer_first_name')
-                    ->searchable(),
+                    ->searchable()
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
                 TextColumn::make('customer_last_name')
-                    ->searchable(),
+                    ->searchable()
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
                 TextColumn::make('customer_phone')
-                    ->searchable(),
+                    ->searchable()
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
                 TextColumn::make('customer_instagram')
-                    ->searchable(),
+                    ->searchable()
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
                 TextColumn::make('delivery_type')
                     ->badge(),
                 TextColumn::make('deliveryOption.name')
@@ -54,9 +59,13 @@ class OrdersTable
                     ->sortable(),
                 TextColumn::make('total_amount')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
                 TextColumn::make('payment_method')
-                    ->badge(),
+                    ->badge()
+                    ->sortable()
+                    ->searchable()
+                    ->visible(fn () => auth()->user()->hasRole('admin')), 
                 TextColumn::make('payment_status')
                     ->badge(),
                 IconColumn::make('delivery_pickup_status')
@@ -75,11 +84,13 @@ class OrdersTable
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
+                EditAction::make()
+                ->visible(fn () => auth()->user()->hasRole('admin')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
                 ]),
             ]);
     }

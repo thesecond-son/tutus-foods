@@ -11,11 +11,14 @@ class CorporateRequestInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('name'),
-                TextEntry::make('phone'),
+                TextEntry::make('name')
+                ->visible(fn () => auth()->user()->hasRole('admin')),
+                TextEntry::make('phone')
+                ->visible(fn () => auth()->user()->hasRole('admin')),
                 TextEntry::make('email')
                     ->label('Email address')
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
                 TextEntry::make('purpose'),
                 TextEntry::make('people')
                     ->numeric(),

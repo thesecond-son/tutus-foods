@@ -26,10 +26,12 @@ class OrderItemsTable
                     ->sortable(),
                 TextColumn::make('unit_price')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
                 TextColumn::make('total_price')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -44,7 +46,8 @@ class OrderItemsTable
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
+                EditAction::make()
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

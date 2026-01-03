@@ -27,12 +27,14 @@ class LatestOrders extends TableWidget
                     ->formatStateUsing(fn ($state, $record) => 
                         $record->customer_first_name . ' ' . $record->customer_last_name
                     )
-                    ->sortable(),
+                    ->sortable()
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
 
                 Tables\Columns\TextColumn::make('total_amount')
                     ->money('GBP')
                     ->label('Total')
-                    ->sortable(),
+                    ->sortable()
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
 
                 Tables\Columns\BadgeColumn::make('payment_status')
                     ->colors([

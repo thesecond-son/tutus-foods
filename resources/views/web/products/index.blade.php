@@ -1,32 +1,18 @@
 @extends('layouts.products')
 
+@section('title', "Products - Tutu's Foods")
+
+@section('meta_description', "Shop handcrafted baked goods, sourdough, festive treats, and pantry favourites from Tutu’s Foods.")
+
 @section('content')
-<style>
-  :root {
-    --brand-pink: #ff5887;
-    --brand-pink-light: #ff88a6;
-    --brand-light-bg: #fff8f9;
-  }
 
-  #productModalContent {
-    scroll-behavior: smooth;
-  }
+@include('web.partials.products-styles')
 
-  #productModalWrapper {
-    transition: opacity 0.3s ease;
-  }
-  #productModalWrapper.hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
-  #productModalWrapper.flex {
-    opacity: 1;
-  }
-</style>
 
 <section class="pt-28 pb-16 px-6 md:px-10 bg-[var(--brand-light-bg)] min-h-screen">
   <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
 
+  <h2 class="sr-only">Product Categories</h2>
     <!-- =============== SIDEBAR =============== -->
     <aside id="filterSidebar"
            class="md:col-span-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-8 md:block hidden transition-all duration-300">
@@ -54,7 +40,7 @@
       <!-- Filter by Price -->
       <div>
         <h2 class="text-lg font-semibold text-gray-800 mb-4">Filter by</h2>
-        <form action="{{ url()->current() }}" method="GET" class="space-y-4 text-sm">
+        <form action="{{ url()->current() }}" method="GET" class="space-y-4 text-sm" rel="nofollow">
           <div>
             <label for="price" class="block mb-1 text-gray-600">Max Price (£)</label>
             <input id="price" name="price" type="range" min="3" max="100" value="{{ request('price', 100) }}" class="w-full accent-[var(--brand-pink)]" oninput="this.nextElementSibling.value = this.value">
@@ -87,6 +73,7 @@
         </p>
       </div>
 
+      <h2 class="sr-only">Product Listings</h2>
       <!-- Product Grid -->
       <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
         @forelse ($products as $product)
@@ -94,7 +81,8 @@
           
           <!-- Product Image -->
           <img src="{{ asset('storage/' . $product->image_path) }}"
-               alt="{{ $product->name }}"
+               loading="lazy" decoding="async" fetchpriority="low"
+               alt="{{ $product->name }} – handcrafted baked product from Tutu’s Foods"
                class="w-full aspect-[4/5] object-cover rounded-t-2xl transition-transform duration-700 ease-out group-hover:scale-105">
 
           <!-- Hover Icons -->
@@ -176,7 +164,9 @@
   </div>
 </div>
 
-<script>
+
+@push('scripts')
+<script defer>
 /* ===== Modal open/close + outside-click + quantity delegation + Add-to-Cart animation ===== */
 function openProductModal(url) {
     const wrapper = document.getElementById('productModalWrapper');
@@ -304,3 +294,28 @@ document.getElementById('productModalWrapper').addEventListener('click', functio
     input.dispatchEvent(new Event('change', { bubbles: true }));
 });
 </script>
+
+@verbatim
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "itemListElement": [
+    @foreach($products as $index => $product)
+    {
+      "@type": "Product",
+      "position": {{ $index + 1 }},
+      "name": "{{ $product->name }}",
+      "image": "{{ asset('storage/'.$product->image_path) }}",
+      "offers": {
+        "@type": "Offer",
+        "priceCurrency": "GBP",
+        "price": "{{ $product->base_price }}"
+      }
+    }@if(!$loop->last),@endif
+    @endforeach
+  ]
+}
+</script>
+@endverbatim
+@endpush

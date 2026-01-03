@@ -4,7 +4,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Tutu’s Foods') }}</title>
+    <title>@yield('title', "Tutu’s Foods")</title>
+
+    <meta name="description" content="@yield('meta_description', 'Handcrafted baked goods, festive treats, and signature brands from Tutu\'s Foods.')">
+
+    <meta name="robots" content="index, follow">
+
+    <link rel="canonical" href="{{ url()->current() }}">
+
+    <link rel="preload" as="image" href="{{ asset('storage/'.$homepage->hero['slides'][0]['image']) }}">
 
     <!-- Tailwind CSS -->
     <!-- @vite(['resources/css/app.css', 'resources/js/app.js']) -->
@@ -374,7 +382,6 @@ function triggerCartAnimation() {
   window.addEventListener('load', reveal);
   reveal();
 })();
-</script>
 </script>
 
 </body>

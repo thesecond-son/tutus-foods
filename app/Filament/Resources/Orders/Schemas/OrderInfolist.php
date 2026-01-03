@@ -13,12 +13,18 @@ class OrderInfolist
         return $schema
             ->components([
                 TextEntry::make('order_number'),
-                TextEntry::make('customer_email'),
-                TextEntry::make('customer_first_name'),
-                TextEntry::make('customer_last_name'),
-                TextEntry::make('customer_phone'),
+                TextEntry::make('customer_email')
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
+                TextEntry::make('customer_first_name')
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
+                TextEntry::make('customer_last_name')
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
+                TextEntry::make('customer_phone')
+                    ->placeholder('-')
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
                 TextEntry::make('customer_instagram')
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
                 TextEntry::make('order_notes')
                     ->placeholder('-')
                     ->columnSpanFull(),
@@ -47,9 +53,14 @@ class OrderInfolist
                     ->time()
                     ->placeholder('-'),
                 TextEntry::make('total_amount')
-                    ->numeric(),
+                    ->numeric()
+                    ->prefix('€')
+                    ->placeholder('-')
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
                 TextEntry::make('payment_method')
-                    ->badge(),
+                    ->badge()
+                    ->placeholder('-')
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
                 TextEntry::make('payment_status')
                     ->badge(),
                 IconEntry::make('delivery_pickup_status')

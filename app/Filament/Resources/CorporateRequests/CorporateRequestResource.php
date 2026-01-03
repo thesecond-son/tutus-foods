@@ -55,4 +55,5 @@ class CorporateRequestResource extends Resource
             'edit' => EditCorporateRequest::route('/{record}/edit'),
         ];
     }
+
 }

@@ -55,4 +55,10 @@ class ProductResource extends Resource
             'edit' => EditProduct::route('/{record}/edit'),
         ];
     }
+
+    //Access Management
+    public static function canAccess(): bool
+    {
+        return auth()->user()->hasRole('admin');
+    }
 }

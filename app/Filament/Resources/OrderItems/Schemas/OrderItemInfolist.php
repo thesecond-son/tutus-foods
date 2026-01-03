@@ -19,9 +19,11 @@ class OrderItemInfolist
                 TextEntry::make('quantity')
                     ->numeric(),
                 TextEntry::make('unit_price')
-                    ->numeric(),
+                    ->numeric()
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
                 TextEntry::make('total_price')
-                    ->numeric(),
+                    ->numeric()
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
                 TextEntry::make('product_options')
                     ->placeholder('-')
                     ->columnSpanFull(),
