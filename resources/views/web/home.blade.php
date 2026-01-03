@@ -132,7 +132,7 @@
       Discover handcrafted festive treats, seasonal delights, and holiday specials to make your Christmas extra joyful and delicious.
     </p>
 
-    <!-- Countdown Timer -->
+    <!-- Countdown Timer
     <div id="christmas-countdown" class="flex justify-center items-center gap-6 text-red-700 font-semibold text-lg md:text-xl my-6">
       <div class="space-y-1">
         <div id="days">00</div>
@@ -150,7 +150,7 @@
         <div id="seconds">00</div>
         <div class="text-sm font-normal">Seconds</div>
       </div>
-    </div>
+    </div> -->
 
     <a href="{{ route('shop-christmas') }}"
        class="inline-block bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-4 rounded-full shadow-md text-lg transition-transform transform hover:scale-105 duration-300">
