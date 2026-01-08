@@ -103,6 +103,38 @@ class HomepageSettingForm
                 ])
                 ->columnSpanFull(),
 
+            // CHRISTMAS SECTION
+            Section::make('Christmas Shop Section')
+                ->schema([
+                    Toggle::make('christmas_section.enabled')
+                        ->label('Show Christmas Section')
+                        ->default(false)
+                        ->live(),
+
+                    TextInput::make('christmas_section.title')
+                        ->label('Section Title')
+                        ->default('Celebrate the Season with Tutu\'s Foods')
+                        ->visible(fn ($get) => $get('christmas_section.enabled')),
+
+                    Textarea::make('christmas_section.description')
+                        ->label('Description')
+                        ->default('Discover handcrafted festive treats, seasonal delights, and holiday specials to make your Christmas extra joyful and delicious.')
+                        ->visible(fn ($get) => $get('christmas_section.enabled')),
+
+                    TextInput::make('christmas_section.button_text')
+                        ->label('Button Text')
+                        ->default('Shop Christmas Collection')
+                        ->visible(fn ($get) => $get('christmas_section.enabled')),
+
+                    TextInput::make('christmas_section.button_link')
+                        ->label('Button Link')
+                        ->default('shop-christmas')
+                        ->visible(fn ($get) => $get('christmas_section.enabled')),
+                ])
+                ->columnSpanFull()
+                ->collapsible(),
+            
+            //ORDER CUT-OFF TIMES
             Section::make('Order Cut-Off Times')
                 ->schema([
                     Repeater::make('order_cutoff_times')

@@ -11,6 +11,7 @@ class HomepageSetting extends Model
         'favourites',
         'signature_brands',
         'order_cutoff_times',
+        'christmas_section',
         'footer',
     ];
 
@@ -19,6 +20,7 @@ class HomepageSetting extends Model
         'favourites' => 'array',
         'signature_brands' => 'array',
         'order_cutoff_times' => 'array',
+        'christmas_section' => 'array',
         'footer' => 'array',
     ];
 }

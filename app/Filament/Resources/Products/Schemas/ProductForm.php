@@ -36,12 +36,14 @@ class ProductForm
                     ->directory('products')
                     ->visibility('public')
                     ->preserveFilenames(),
-                Select::make('category_id')
-                    ->label('Category')
-                    ->relationship('category', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->default(null),
+                // Just add ->multiple() to your existing field
+                Select::make('category')
+                ->label('Category')
+                ->relationship('category', 'name')
+                ->multiple()
+                ->searchable()
+                ->preload()
+                ->required(),
                 Repeater::make('product_options')
                     ->label('Product Variants')
                     ->schema([

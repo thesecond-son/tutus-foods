@@ -50,7 +50,10 @@
 <!-- COLLECTION SECTION -->
 <section id="collections" class="bg-[var(--brand-bg)] py-12 md:py-16 px-6">
   <div class="max-w-6xl mx-auto text-center">
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 md:gap-10">
+  <h2 class="text-3xl md:text-4xl font-bold mb-14 text-gray-900 tracking-tight fade-up">
+      Our Best Sellers
+    </h2>  
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 md:gap-10">
     @foreach($homepage->favourites as $item)
       <a href="{{ $item['url'] }}" class="circle-card flex flex-col items-center text-center fade-up group">
         <img src="{{ asset('storage/'.$item['image']) }}" alt="{{ $item['title'] }}" loading="lazy" decoding="async"
@@ -112,6 +115,7 @@
 </section>
 
 
+@if($homepage->christmas_section['enabled'] ?? false)
 <!-- CHRISTMAS SHOP SECTION -->
 <section id="shop-christmas" class="bg-red-50 py-24 px-6 relative overflow-hidden">
   <div class="absolute inset-0 pointer-events-none">
@@ -126,38 +130,19 @@
 
   <div class="max-w-3xl mx-auto text-center relative z-10 space-y-6">
     <h2 class="text-4xl md:text-5xl font-bold text-red-700 section-title">
-      Celebrate the Season with Tutu’s Foods
+      {{ $homepage->christmas_section['title'] ?? 'Celebrate the Season with Tutu\'s Foods' }}
     </h2>
     <p class="text-gray-700 text-lg md:text-xl">
-      Discover handcrafted festive treats, seasonal delights, and holiday specials to make your Christmas extra joyful and delicious.
+      {{ $homepage->christmas_section['description'] ?? 'Discover handcrafted festive treats, seasonal delights, and holiday specials to make your Christmas extra joyful and delicious.' }}
     </p>
 
-    <!-- Countdown Timer
-    <div id="christmas-countdown" class="flex justify-center items-center gap-6 text-red-700 font-semibold text-lg md:text-xl my-6">
-      <div class="space-y-1">
-        <div id="days">00</div>
-        <div class="text-sm font-normal">Days</div>
-      </div>
-      <div class="space-y-1">
-        <div id="hours">00</div>
-        <div class="text-sm font-normal">Hours</div>
-      </div>
-      <div class="space-y-1">
-        <div id="minutes">00</div>
-        <div class="text-sm font-normal">Minutes</div>
-      </div>
-      <div class="space-y-1">
-        <div id="seconds">00</div>
-        <div class="text-sm font-normal">Seconds</div>
-      </div>
-    </div> -->
-
-    <a href="{{ route('shop-christmas') }}"
+    <a href="{{ $homepage->christmas_section['button_link'] ?? route('shop-christmas') }}"
        class="inline-block bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-4 rounded-full shadow-md text-lg transition-transform transform hover:scale-105 duration-300">
-      Shop Christmas Collection
+      {{ $homepage->christmas_section['button_text'] ?? 'Shop Christmas Collection' }}
     </a>
   </div>
 </section>
+@endif
 
 <!-- ORDER CUT-OFF SECTION -->
 <section id="order-times" class="bg-gradient-to-b from-[var(--brand-bg)] to-[#ffe4ea] py-20 px-6 text-center">

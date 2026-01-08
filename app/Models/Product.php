@@ -39,8 +39,15 @@ class Product extends Model
         return $this->image_path ? asset('storage/' . $this->image_path) : null;
     }
 
+    // Change from belongsTo to belongsToMany, but keep the name as 'category'
     public function category()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsToMany(Category::class);
+    }
+
+    // Optional: Keep a helper for the primary category if needed
+    public function primaryCategory()
+    {
+        return $this->category()->first();
     }
 }
