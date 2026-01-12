@@ -9,15 +9,11 @@
 @include('web.partials.home-styles')
 
 <!-- HERO SECTION -->
-<section
-  id="hero"
-  class="relative w-full min-h-[85svh] md:min-h-screen overflow-clip"
->
-
+<section id="hero" class="relative w-full h-[90vh] md:h-screen overflow-hidden">
 
   <!-- Background Slides -->
   <div class="absolute inset-0">
-  @foreach(($homepage->hero['slides'] ?? []) as $index => $slide)
+    @foreach($homepage->hero['slides'] as $index => $slide)
       <img src="{{ asset('storage/'.$slide['image']) }}" fetchpriority="high"
            class="slide {{ $index === 0 ? 'active' : '' }}"
            alt="Freshly baked bread by Tutu’s Foods">
