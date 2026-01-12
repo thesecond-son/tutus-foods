@@ -21,10 +21,7 @@
   </div>
 
   <!-- Softer Overlay -->
-  <div class="absolute inset-0 bg-gradient-to-b
-            from-black/40 via-black/25 to-black/40
-            md:from-black/30 md:via-black/20 md:to-black/30
-            z-10"></div>
+  <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/30 z-10"></div>
 
   <!-- Text content -->
   <div class="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4 md:px-8">
