@@ -11,41 +11,81 @@ class ProductController extends Controller
 {
     public function index(Request $request, $slug = null)
     {
-        // Exclude Christmas category
+        // Sidebar categories (exclude Christmas)
         $categories = Category::where('slug', '!=', 'shop-christmas')
             ->orderBy('name')
             ->get();
-    
-        // Determine current category (if any)
-        $currentCategory = $slug
-            ? Category::where('slug', $slug)->firstOrFail()
-            : null;
-    
-        // Base product query
-        $query = Product::where('active', true)
-            ->whereHas('category', function ($q) {
-                $q->where('slug', '!=', 'shop-christmas');
-            });
-    
-        // Filter by category if present
-        if ($currentCategory) {
-            $query->where('category_id', $currentCategory->id);
+
+        /**
+         * 🎯 SPECIAL CASE: CUPCAKES PAGE
+         * /products/category/cupcakes
+         */
+        if ($slug === 'cupcakes') {
+
+            $stackedCategories = Category::whereIn('slug', [
+                    'cupcakes',
+                    'loaf-cakes',
+                    'floral-cupcakes',
+                ])
+                ->with(['products' => function ($query) use ($request) {
+                    $query->where('active', true)
+                        ->when($request->price, fn ($q) =>
+                            $q->where('base_price', '<=', $request->price)
+                        )
+                        ->latest();
+                }])
+                ->get();
+
+            $currentCategory = Category::where('slug', 'cupcakes')->first();
+
+            return view('web.products.cupcakes', [
+                'categories'        => $categories,
+                'stackedCategories' => $stackedCategories,
+                'currentCategory'   => $currentCategory,
+            ]);
         }
-    
-        // Filter by price if provided
-        if ($request->has('price')) {
-            $query->where('base_price', '<=', $request->price);
+
+        /**
+         * 🧁 NORMAL CATEGORY PAGE
+         * /products/category/{slug}
+         */
+        if ($slug) {
+            $currentCategory = Category::where('slug', $slug)->firstOrFail();
+
+            $products = $currentCategory->products()
+                ->where('active', true)
+                ->when($request->price, fn ($q) =>
+                    $q->where('base_price', '<=', $request->price)
+                )
+                ->paginate(12)
+                ->withQueryString();
+
+            return view('web.products.index', [
+                'categories'      => $categories,
+                'products'        => $products,
+                'currentCategory' => $currentCategory,
+            ]);
         }
-    
-        // Get products with pagination
-        $products = $query->paginate(12)->withQueryString();
-    
+
+        /**
+         * 🛍 ALL PRODUCTS PAGE
+         * /products
+         */
+        $products = Product::where('active', true)
+            ->whereHas('category', fn ($q) =>
+                $q->where('slug', '!=', 'shop-christmas')
+            )
+            ->when($request->price, fn ($q) =>
+                $q->where('base_price', '<=', $request->price)
+            )
+            ->paginate(12)
+            ->withQueryString();
+
         return view('web.products.index', [
             'categories' => $categories,
-            'products' => $products,
-            'currentCategory' => $currentCategory,
+            'products'   => $products,
         ]);
-    }    
+    }
 
     public function show($slug)
 {
@@ -60,18 +100,19 @@ class ProductController extends Controller
     return view('web.products.show', compact('product'));
 }
 
-    public function category($slug)
-    {
-        $categories = Category::orderBy('name')->get();
+    // public function category($slug)
+    // {
+    //     $categories = Category::orderBy('name')->get();
 
-        $products = Product::whereHas('category', function ($query) use ($slug) {
-                $query->where('slug', $slug);
-            })
-            ->where('active', true)
-            ->get();
+    //     $products = Product::whereHas('category', function ($query) use ($slug) {
+    //             $query->where('slug', $slug);
+    //         })
+    //         ->where('active', true)
+    //         ->get();
 
-        $category = Category::where('slug', $slug)->firstOrFail();
+    //     $category = Category::where('slug', $slug)->firstOrFail();
 
-        return view('web.products.index', compact('categories', 'products', 'category'));
-    }
+    //     return view('web.products.index', compact('categories', 'products', 'category'));
+    // }
+
 }

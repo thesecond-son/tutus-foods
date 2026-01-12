@@ -67,6 +67,33 @@ class HomepageSettingInfolist
                     ->columns(2),
             ])
             ->columnSpanFull(),
+            
+        // CHRISTMAS SECTION
+        Section::make('Christmas Shop Section')
+            ->schema([
+                IconEntry::make('christmas_section.enabled')
+                    ->label('Show Christmas Section')
+                    ->boolean(),
+
+                TextEntry::make('christmas_section.title')
+                    ->label('Section Title')
+                    ->visible(fn ($record) => $record->christmas_section['enabled'] ?? false),
+
+                TextEntry::make('christmas_section.description')
+                    ->label('Description')
+                    ->visible(fn ($record) => $record->christmas_section['enabled'] ?? false),
+
+                TextEntry::make('christmas_section.button_text')
+                    ->label('Button Text')
+                    ->visible(fn ($record) => $record->christmas_section['enabled'] ?? false),
+
+                TextEntry::make('christmas_section.button_link')
+                    ->label('Button Link')
+                    ->visible(fn ($record) => $record->christmas_section['enabled'] ?? false),
+            ])
+            ->columnSpanFull()
+            ->collapsible(),
+
         Section::make('Order Cut-Off Times')
             ->schema([
                 RepeatableEntry::make('order_cutoff_times')
