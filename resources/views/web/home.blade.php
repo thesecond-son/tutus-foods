@@ -13,7 +13,7 @@
 
   <!-- Background Slides -->
   <div class="absolute inset-0">
-    @foreach($homepage->hero['slides'] as $index => $slide)
+  @foreach(($homepage->hero['slides'] ?? []) as $index => $slide)
       <img src="{{ asset('storage/'.$slide['image']) }}" fetchpriority="high"
            class="slide {{ $index === 0 ? 'active' : '' }}"
            alt="Freshly baked bread by Tutu’s Foods">
