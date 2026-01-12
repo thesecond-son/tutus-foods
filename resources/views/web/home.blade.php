@@ -9,7 +9,11 @@
 @include('web.partials.home-styles')
 
 <!-- HERO SECTION -->
-<section id="hero" class="relative w-full h-[70vh] md:h-screen overflow-hidden">
+<section
+  id="hero"
+  class="relative w-full min-h-[85svh] md:min-h-screen overflow-clip"
+>
+
 
   <!-- Background Slides -->
   <div class="absolute inset-0">
