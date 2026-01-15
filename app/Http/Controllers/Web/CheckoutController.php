@@ -9,14 +9,11 @@ use App\Models\OrderItem;
 use App\Models\DeliveryOption;
 use App\Models\PickupLocation;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
-use Square\Apis\PaymentsApi;
-use Square\Environments;
-use Square\SquareClient;
 use Square\Core\Client\RawClient;
 use Square\Payments\PaymentsClient;
 use Square\Payments\Requests\CreatePaymentRequest;
 use Square\Types\Money;
-use Square\Exceptions\ApiException;
+use Square\Environments;
 use App\Mail\AdminOrderMail;
 use App\Mail\CustomerOrderMail;
 use Filament\Notifications\Notification;
@@ -216,83 +213,6 @@ public function capturePayPalOrder(Request $request)
 }
 
 
-public function createSquarePayment(Request $request)
-{
-    \Log::info('Square Payment Init', ['request' => $request->all()]);
-
-    $cart = session()->get('cart', []);
-    $totalAmount = $this->calculateTotal($cart, $request);
-
-    if ($totalAmount <= 0) {
-        return response()->json(['status' => 'failed', 'errors' => 'Invalid total'], 400);
-    }
-
-    $mode = config('services.square.mode', 'sandbox');
-
-    $accessToken = $mode === 'live'
-        ? config('services.square.live_access_token')
-        : config('services.square.sandbox_access_token');
-
-    // NEW SDK CLIENT
-    $rawClient = new RawClient([
-        'accessToken' => $accessToken,
-        'environment' => $mode === 'live' ? \Square\Environments::Production : \Square\Environments::Sandbox,
-    ]);
-
-    // ❗ NEW SDK: instantiate the API manually
-    $paymentsClient = new PaymentsClient($rawClient);
-
-    $orderId = 'ORD-' . strtoupper(uniqid()); // fix missing var
-
-    $money = new Money([
-        'amount' => intval($totalAmount * 100), // smallest currency unit
-        'currency' => 'GBP',
-    ]);
-    
-   // Build the request using NEW SDK types
-   $createPaymentRequest = new CreatePaymentRequest([
-    'sourceId' => (string) $request->source_id,
-    'idempotencyKey' => (string) $orderId,
-    'amountMoney' => $money,
-    'autocomplete' => true,
-    'note' => "Order $orderId",
-    'buyerEmailAddress' => $request->customer_email,
-]);
-
-        try {
-            // ❗ NEW SDK METHOD — correct one
-            $response = $paymentsClient->createPaymentRequest($createPaymentRequest);
-
-            if ($response->isSuccess()) {
-                $result = $response->getResult();
-
-                \Log::info('Square Payment Success', ['payment' => $result]);
-
-                $order = $this->createOrderAfterPayment(
-                    $request, 'square', 'paid', $orderId
-                );
-
-                return response()->json([
-                    'status' => 'success',
-                    'order_id' => $order->id,
-                    'payment' => $result,
-                ]);
-            }
-
-            \Log::error('Square Payment Failed', ['errors' => $response->getErrors()]);
-
-            return response()->json([
-                'status' => 'failed',
-                'errors' => $response->getErrors(),
-            ], 400);
-
-        } catch (\Exception $e) {
-            \Log::error('Square Exception', ['error' => $e->getMessage()]);
-            return response()->json(['status' => 'failed', 'errors' => $e->getMessage()], 500);
-        }
-}
-
-
 public function getSquareConfig()
 {
     $mode = config('services.square.mode', 'sandbox');
@@ -310,6 +230,86 @@ public function getSquareConfig()
         'locationId' => $locationId,
     ]);
 }
+
+
+public function createSquarePayment(Request $request)
+{
+    \Log::info('Square Payment Init', ['request' => $request->all()]);
+
+    $cart = session()->get('cart', []);
+    $totalAmount = $this->calculateTotal($cart, $request);
+
+    if ($totalAmount <= 0) {
+        return response()->json(['status' => 'failed', 'errors' => 'Invalid total'], 400);
+    }
+
+    $mode = config('services.square.mode', 'sandbox');
+
+    $accessToken = $mode === 'live'
+        ? config('services.square.live_access_token')
+        : config('services.square.sandbox_access_token');
+
+    // ✅ NEW SDK CLIENT
+    $rawClient = new RawClient([
+        'accessToken' => $accessToken,
+        'environment' => $mode === 'live' ? \Square\Environments::Production : \Square\Environments::Sandbox,
+    ]);
+
+    $paymentsClient = new PaymentsClient($rawClient);
+
+    $orderId = 'ORD-' . strtoupper(uniqid());
+
+    // ✅ Correct Money object
+    $money = new Money([
+        'amount' => (int) round($totalAmount * 100), // smallest unit
+        'currency' => 'GBP',
+    ]);
+
+    // ✅ Correct CreatePaymentRequest
+    $createPaymentRequest = new CreatePaymentRequest([
+        'sourceId' => (string) $request->source_id,
+        'idempotencyKey' => (string) $orderId,
+        'amountMoney' => $money,
+        'autocomplete' => true,
+        'note' => "Order $orderId",
+        'buyerEmailAddress' => $request->customer_email,
+    ]);
+
+    try {
+        // ✅ CORRECT METHOD
+        $response = $paymentsClient->create($createPaymentRequest);
+
+         // The response is the result directly, not wrapped
+         \Log::info('Square Payment Response', ['response' => $response]);
+
+        // Check if payment was successful
+    if (isset($response['payment']) && $response['payment']['status'] === 'COMPLETED') {
+            
+            \Log::info('Square Payment Success', ['payment' => $response['payment']]);
+
+            $order = $this->createOrderAfterPayment(
+                $request, 'square', 'paid', $response['payment']['id']
+            );
+
+            return response()->json([
+                'status' => 'success',
+                'order_id' => $order->id,
+                'payment' => $response['payment'],
+            ]);
+        }
+
+        \Log::error('Square Payment Failed', ['response' => $response]);
+
+        return response()->json([
+            'status' => 'failed',
+            'errors' => $response['errors'] ?? ['message' => 'Payment not completed'],
+        ], 400);
+
+        } catch (\Throwable $e) {
+            \Log::error('Square Exception', ['error' => $e->getMessage()]);
+            return response()->json(['status' => 'failed', 'errors' => $e->getMessage()], 500);
+        }
+    }
 
 
     // --- Total calculation ---

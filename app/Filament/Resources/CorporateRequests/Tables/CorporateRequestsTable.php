@@ -16,12 +16,15 @@ class CorporateRequestsTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
                 TextColumn::make('phone')
-                    ->searchable(),
+                    ->searchable()
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
                 TextColumn::make('email')
                     ->label('Email address')
-                    ->searchable(),
+                    ->searchable()
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
                 TextColumn::make('purpose')
                     ->searchable(),
                 TextColumn::make('people')
@@ -43,11 +46,13 @@ class CorporateRequestsTable
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
+                EditAction::make()
+                ->visible(fn () => auth()->user()->hasRole('admin')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                    ->visible(fn () => auth()->user()->hasRole('admin')),
                 ]),
             ]);
     }
