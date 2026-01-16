@@ -249,6 +249,17 @@ public function createSquarePayment(Request $request)
         ? config('services.square.live_access_token')
         : config('services.square.sandbox_access_token');
 
+            \Log::info('Square Backend Mode Check', [
+                'mode' => config('services.square.mode'),
+                'app_id' => config('services.square.sandbox_application_id'),
+                'token_prefix' => substr(
+                    config('services.square.sandbox_access_token'),
+                    0,
+                    4
+                ),
+            ]);
+        
+
     // ✅ NEW SDK CLIENT
     $rawClient = new RawClient([
         'accessToken' => $accessToken,
