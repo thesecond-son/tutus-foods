@@ -14,14 +14,16 @@
 
   <h2 class="sr-only">Product Categories</h2>
     <!-- =============== SIDEBAR =============== -->
-       <aside id="filterSidebar"
-       class="hidden md:block
-              fixed md:static
-              inset-x-4 top-24
-              z-50
-              bg-white rounded-2xl shadow-lg
-              border border-gray-100
-              p-6 space-y-8">
+    <aside id="filterSidebar"
+       class="md:col-span-1
+              bg-white rounded-2xl shadow-sm border border-gray-100
+              p-6 space-y-8
+              hidden md:block
+              fixed md:relative
+              inset-x-0 bottom-0 md:inset-auto
+              z-40 md:z-auto
+              transition-all duration-300">
+
 
       <!-- CLOSE BUTTON (mobile only) -->
       <button id="closeSidebar"
@@ -314,20 +316,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!toggleBtn || !sidebar) return;
 
-    const closeSidebar = () => sidebar.classList.add('hidden');
-    const openSidebar  = () => sidebar.classList.remove('hidden');
-
     toggleBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        openSidebar();
+        sidebar.classList.remove('hidden');
     });
 
-    closeBtn?.addEventListener('click', closeSidebar);
+    closeBtn?.addEventListener('click', () => {
+        sidebar.classList.add('hidden');
+    });
 
-    // Close when clicking outside
+    // Close when tapping outside (mobile only)
     document.addEventListener('click', (e) => {
-        if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
-            closeSidebar();
+        if (
+            window.innerWidth < 768 &&
+            !sidebar.contains(e.target) &&
+            !toggleBtn.contains(e.target)
+        ) {
+            sidebar.classList.add('hidden');
         }
     });
 });
