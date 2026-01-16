@@ -14,16 +14,7 @@
 
   <h2 class="sr-only">Product Categories</h2>
     <!-- =============== SIDEBAR =============== -->
-    <aside id="filterSidebar"
-       class="md:col-span-1
-              bg-white rounded-2xl shadow-sm border border-gray-100
-              p-6 space-y-8
-              hidden md:block
-              fixed md:relative
-              inset-x-0 bottom-0 md:inset-auto
-              z-40 md:z-auto
-              transition-all duration-300">
-
+    <aside id="filterSidebar" class="md:col-span-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-8 md:block hidden fixed md:relative inset-x-0 bottom-0 md:inset-auto z-40 md:z-auto transition-all duration-300">
 
       <!-- CLOSE BUTTON (mobile only) -->
       <button id="closeSidebar"
