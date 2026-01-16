@@ -293,6 +293,28 @@ document.getElementById('productModalWrapper').addEventListener('click', functio
     input.value = val;
     input.dispatchEvent(new Event('change', { bubbles: true }));
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+    const toggleBtn = document.getElementById('toggleSidebar');
+    const sidebar = document.getElementById('filterSidebar');
+
+    if (!toggleBtn || !sidebar) return;
+
+    toggleBtn.addEventListener('click', () => {
+        if (window.innerWidth < 768) {
+            sidebar.classList.toggle('hidden');
+        }
+    });
+
+    // Click outside to close
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth >= 768) return; // desktop: ignore
+        if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+            sidebar.classList.add('hidden');
+        }
+    });
+});
+
 </script>
 
 @verbatim
