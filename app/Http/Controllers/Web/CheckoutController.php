@@ -9,11 +9,11 @@ use App\Models\OrderItem;
 use App\Models\DeliveryOption;
 use App\Models\PickupLocation;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
-use Square\Core\Client\RawClient;
-use Square\Payments\PaymentsClient;
+use Square\SquareClient;
+use Square\Environments;
 use Square\Payments\Requests\CreatePaymentRequest;
 use Square\Types\Money;
-use Square\Environments;
+use Square\Types\Currency;
 use App\Mail\AdminOrderMail;
 use App\Mail\CustomerOrderMail;
 use Filament\Notifications\Notification;
@@ -249,24 +249,21 @@ public function createSquarePayment(Request $request)
         ? config('services.square.live_access_token')
         : config('services.square.sandbox_access_token');
 
-            \Log::info('Square Backend Mode Check', [
-                'mode' => config('services.square.mode'),
-                'app_id' => config('services.square.sandbox_application_id'),
-                'token_prefix' => substr(
-                    config('services.square.sandbox_access_token'),
-                    0,
-                    4
-                ),
-            ]);
+    \Log::info('Square Backend Mode Check', [
+        'mode' => $mode,
+        'token_prefix' => substr($accessToken, 0, 4),
+    ]);
         
 
     // ✅ NEW SDK CLIENT
-    $rawClient = new RawClient([
-        'accessToken' => $accessToken,
-        'environment' => $mode === 'live' ? \Square\Environments::Production : \Square\Environments::Sandbox,
-    ]);
-
-    $paymentsClient = new PaymentsClient($rawClient);
+    $square = new SquareClient(
+        token: $accessToken,
+        options: [
+            'baseUrl' => $mode === 'live'
+                ? Environments::Production->value
+                : Environments::Sandbox->value,
+        ]
+    );
 
     $orderId = 'ORD-' . strtoupper(uniqid());
 
@@ -277,35 +274,41 @@ public function createSquarePayment(Request $request)
     ]);
 
     // ✅ Correct CreatePaymentRequest
-    $createPaymentRequest = new CreatePaymentRequest([
+    $paymentRequest = new CreatePaymentRequest([
         'sourceId' => (string) $request->source_id,
         'idempotencyKey' => (string) $orderId,
         'amountMoney' => $money,
         'autocomplete' => true,
-        'note' => "Order $orderId",
         'buyerEmailAddress' => $request->customer_email,
+        'note' => "Order $orderId",
     ]);
 
     try {
         // ✅ CORRECT METHOD
-        $response = $paymentsClient->create($createPaymentRequest);
+        $response = $square->payments->create(
+            request: $paymentRequest
+        );
 
          // The response is the result directly, not wrapped
          \Log::info('Square Payment Response', ['response' => $response]);
 
+         $payment = $response->getPayment();
+
         // Check if payment was successful
-    if (isset($response['payment']) && $response['payment']['status'] === 'COMPLETED') {
-            
-            \Log::info('Square Payment Success', ['payment' => $response['payment']]);
+        
+        if ($payment && $payment->getStatus() === 'COMPLETED') {
 
             $order = $this->createOrderAfterPayment(
-                $request, 'square', 'paid', $response['payment']['id']
+                $request,
+                'square',
+                'paid',
+                $payment->getId()
             );
 
             return response()->json([
                 'status' => 'success',
                 'order_id' => $order->id,
-                'payment' => $response['payment'],
+                'payment_id' => $payment->getId(),
             ]);
         }
 
