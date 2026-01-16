@@ -300,34 +300,6 @@ document.getElementById('productModalWrapper').addEventListener('click', functio
     input.dispatchEvent(new Event('change', { bubbles: true }));
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    const toggleBtn = document.getElementById('toggleSidebar');
-    const closeBtn  = document.getElementById('closeSidebar');
-    const sidebar   = document.getElementById('filterSidebar');
-
-    if (!toggleBtn || !sidebar) return;
-
-    toggleBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        sidebar.classList.remove('hidden');
-    });
-
-    closeBtn?.addEventListener('click', () => {
-        sidebar.classList.add('hidden');
-    });
-
-    // Close when tapping outside (mobile only)
-    document.addEventListener('click', (e) => {
-        if (
-            window.innerWidth < 768 &&
-            !sidebar.contains(e.target) &&
-            !toggleBtn.contains(e.target)
-        ) {
-            sidebar.classList.add('hidden');
-        }
-    });
-});
-
 </script>
 
 @verbatim
