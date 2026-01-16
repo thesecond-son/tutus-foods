@@ -14,14 +14,8 @@
 
   <h2 class="sr-only">Product Categories</h2>
     <!-- =============== SIDEBAR =============== -->
-    <aside id="filterSidebar" class="md:col-span-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-8 md:block hidden fixed md:relative inset-x-0 bottom-0 md:inset-auto z-40 md:z-auto transition-all duration-300">
-
-      <!-- CLOSE BUTTON (mobile only) -->
-      <button id="closeSidebar"
-        class="md:hidden mb-4 text-sm font-semibold text-gray-500 hover:text-gray-800">
-          ✕ Close
-      </button>
-
+    <aside id="filterSidebar"
+           class="md:col-span-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-8 md:block hidden transition-all duration-300">
       <!-- Browse by -->
       <div>
         <h2 class="text-lg font-semibold text-gray-800 mb-4">Browse by</h2>
@@ -299,7 +293,6 @@ document.getElementById('productModalWrapper').addEventListener('click', functio
     input.value = val;
     input.dispatchEvent(new Event('change', { bubbles: true }));
 });
-
 </script>
 
 @verbatim
