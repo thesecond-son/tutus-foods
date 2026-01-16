@@ -14,8 +14,21 @@
 
   <h2 class="sr-only">Product Categories</h2>
     <!-- =============== SIDEBAR =============== -->
-    <aside id="filterSidebar"
-           class="md:col-span-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-8 md:block hidden transition-all duration-300">
+       <aside id="filterSidebar"
+       class="hidden md:block
+              fixed md:static
+              inset-x-4 top-24
+              z-50
+              bg-white rounded-2xl shadow-lg
+              border border-gray-100
+              p-6 space-y-8">
+
+      <!-- CLOSE BUTTON (mobile only) -->
+      <button id="closeSidebar"
+        class="md:hidden mb-4 text-sm font-semibold text-gray-500 hover:text-gray-800">
+          ✕ Close
+      </button>
+
       <!-- Browse by -->
       <div>
         <h2 class="text-lg font-semibold text-gray-800 mb-4">Browse by</h2>
@@ -293,6 +306,32 @@ document.getElementById('productModalWrapper').addEventListener('click', functio
     input.value = val;
     input.dispatchEvent(new Event('change', { bubbles: true }));
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+    const toggleBtn = document.getElementById('toggleSidebar');
+    const closeBtn  = document.getElementById('closeSidebar');
+    const sidebar   = document.getElementById('filterSidebar');
+
+    if (!toggleBtn || !sidebar) return;
+
+    const closeSidebar = () => sidebar.classList.add('hidden');
+    const openSidebar  = () => sidebar.classList.remove('hidden');
+
+    toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openSidebar();
+    });
+
+    closeBtn?.addEventListener('click', closeSidebar);
+
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+            closeSidebar();
+        }
+    });
+});
+
 </script>
 
 @verbatim
