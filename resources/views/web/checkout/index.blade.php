@@ -160,7 +160,7 @@
 
       {{-- PAYMENT --}}
       <div class="space-y-5">
-      <h2 class="text-xl font-semibold text-gray-800 mb-2">Payment Method</h2>
+      <h2 class="text-xl font-semibold text-gray-800 mb-2">Pay with Card</h2>
 
         <div id="paymentMethods" class="flex gap-4">
         <!-- Square -->
