@@ -78,6 +78,7 @@ class CheckoutController extends Controller
                 'total_amount' => $totalAmount,
                 'payment_method' => $paymentMethod,
                 'payment_status' => $paymentStatus,
+                'payment_reference' => $paymentReference,
                 'delivery_pickup_status' => false,
             ]);
     
@@ -182,6 +183,16 @@ public function capturePayPalOrder(Request $request)
     if (!$request->expectsJson()) {
         return response()->json(['error' => 'Invalid request'], 422);
     }
+
+    $existingOrder = Order::where('payment_reference', $request->order_id)->first();
+
+    if ($existingOrder) {
+        return response()->json([
+            'status' => 'success',
+            'order_id' => $existingOrder->id,
+        ]);
+    }
+
     
     $provider = new PayPalClient;
     $provider->setApiCredentials(config('paypal'));

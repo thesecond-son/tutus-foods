@@ -324,6 +324,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let fpInstance = null;
     let paypalLoaded = false;
     let squareLoaded = false;
+    let paypalProcessing = false;
 
     // --- helper ---
     function updateTotals() {
@@ -678,9 +679,37 @@ document.getElementById('sq-pay').addEventListener('click', async () => {
                 })
             })
                 .then(res => res.json())
-                .then(data => data.orderID);
+                .then(data => {
+                    if (!data.orderID) {
+                        throw new Error('PayPal order creation failed');
+                    }
+                    return data.orderID;
+                });
             },
             onApprove: function(data, actions) {
+
+            if (paypalProcessing) {
+                return;
+            }
+
+            paypalProcessing = true;
+
+            // Disable the PayPal iframe button
+            document.querySelector('#paypal-button-container')
+                .style.pointerEvents = 'none';
+            document.querySelector('#paypal-button-container')
+                .style.opacity = '0.6';
+
+            function enablePayPalButton() {
+                paypalProcessing = false;
+
+                const container = document.querySelector('#paypal-button-container');
+                if (container) {
+                    container.style.pointerEvents = 'auto';
+                    container.style.opacity = '1';
+                }
+            }
+
                // --- grab customer info safely ---
             const emailEl = document.querySelector('input[name="customer_email"]');
             const firstNameEl = document.querySelector('input[name="customer_first_name"]');
@@ -696,6 +725,7 @@ document.getElementById('sq-pay').addEventListener('click', async () => {
             if (!emailEl || !firstNameEl || !lastNameEl || !phoneEl || !deliveryTypeEl) {
                 console.error("Required checkout fields are missing");
                 alert("Please fill in all required fields before completing the payment.");
+                enablePayPalButton();
                 return;
             }
 
@@ -734,13 +764,19 @@ document.getElementById('sq-pay').addEventListener('click', async () => {
                 .then(function(response) {
                 if (!response.order_id) {
                     console.error("No order ID returned from server", response);
+                    enablePayPalButton();
                     return;
                 }
                 window.location.href = "/checkout/success/" + response.order_id;
+                })
+                .catch(err => {
+                    console.error("PayPal capture error", err);
+                    enablePayPalButton(); // ✅ ADD THIS
                 });
             },
             onCancel: function() {
-        console.log("Payment cancelled");
+                console.log("Payment cancelled");
+                enablePayPalButton();
     }
         }).render('#paypal-button-container');
     }
