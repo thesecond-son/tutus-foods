@@ -228,7 +228,7 @@
 <section class="bg-[var(--brand-bg)] py-20 px-6">
   <div class="max-w-4xl mx-auto text-center">
 
-    <h2 class="text-[var(--brand-pink)] text-3xl md:text-4xl font-semibold mb-14 fade-up">
+    <h2 class="text-[var(--brand-pink)] text-3xl md:text-4xl font-semibold mb-3 fade-up">
       What our customers are saying
     </h2>
 
@@ -237,25 +237,28 @@
 
       <div id="review-slider" class="flex transition-transform duration-500 ease-out">
 
-        @foreach([
-          ["I love Tutu's Foods cakes and treats. Had my first bite in 2019 - the cakes are moist, creamy, delicious, just the right amount of sugar, beautiful works of art (you'll be pleased by how they look). Oh the icing texture is so creamy (creamier than ice cream). Her attention to detail and hygiene is excellent. I highly recommend Tutu's Cupcakes!", 'Gbemi A.'],
-          ['Tutu’s sourdough has become a weekly staple in our home. So wholesome and satisfying.', 'David K.'],
-          ['I love how everything feels intentional — from the food to the experience.', 'Zainab A.'],
-        ] as [$review, $name])
+      @foreach ([
+            ["I love Tutu's Foods cakes and treats. Had my first bite in 2019 - the cakes are moist, creamy, delicious, just the right amount of sugar, beautiful works of art (you'll be pleased by how they look). Oh the icing texture is so creamy (creamier than ice cream). Her attention to detail and hygiene is excellent. I highly recommend Tutu's Cupcakes!", 'Gbemi A.'],
+            ['Tutu’s sourdough has become a weekly staple in our home. So wholesome and satisfying.', 'David K.'],
+            ['I love how everything feels intentional — from the food to the experience.', 'Zainab A.'],
+        ] as $item)
 
-          <div class="min-w-full px-6">
-            <div class="soft-card p-10 max-w-2xl mx-auto">
-              <p class="text-gray-700 text-lg leading-relaxed mb-6">
-                “{{ $review }}”
-              </p>
-              <span class="block text-sm font-semibold text-gray-900">
-                — {{ $name }}
-              </span>
+            @php
+                [$review, $name] = $item;
+            @endphp
+
+            <div class="min-w-full px-4">
+                <div class="soft-card p-10 max-w-2xl mx-auto">
+                    <p class="text-gray-700 text-lg leading-relaxed mb-6">
+                        “{{ $review }}”
+                    </p>
+                    <span class="block text-sm font-semibold text-gray-900">
+                        — {{ $name }}
+                    </span>
+                </div>
             </div>
-          </div>
 
         @endforeach
-
       </div>
 
       <!-- Dots -->
