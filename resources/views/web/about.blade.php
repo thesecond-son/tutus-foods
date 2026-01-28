@@ -184,13 +184,13 @@
     </h2>
 
     <p class="text-gray-600 text-base md:text-lg leading-relaxed">
-      What started as a passion for baking at home has grown into a collection
-      of thoughtfully crafted food brands. 
+    What began as a small cupcake venture has grown into something bigger: 
+    a home for multiple brands, each with its own flavour and story.
     </p>
 
     <p class="text-gray-600 text-base md:text-lg leading-relaxed">
-    At Tutu’s Foods, we honour
-    time-tested techniques while embracing modern creativity.
+    At the heart of Tutu’s Foods is a simple belief: good food should nourish, connect, and delight. 
+    Every loaf, every cupcake, every puff puff, every pantry jar carries our promise of quality and care.
     </p>
 
   </div>
@@ -212,7 +212,13 @@
     Explore each brand on our website.
     </p>
 
+    <p class="text-gray-600 text-base md:text-lg leading-relaxed">
+    Read our blog from Tutu’s Kitchen for stories and tips
+    </p>
 
+    <p class="text-gray-600 text-base md:text-lg leading-relaxed">
+    Find us at local markets or shop online
+    </p>
 
   </div>
 </section>
@@ -232,7 +238,8 @@
       <div id="review-slider" class="flex transition-transform duration-500 ease-out">
 
         @foreach([
-          ['The cupcakes were honestly the best I’ve had in years. You can taste the care in every bite.', 'Amaka O.'],
+          ['​I love Tutu's Foods' cakes and treats. Had my first bite in 2019 - the cakes are moist, creamy, delicious, just the right amount of sugar, beautiful works of art (you'll be pleased by how they look). 
+          Oh the icing texture is so creamy (creamier than ice cream). Her attention to detail and hygiene is excellent. I highly recommend Tutu's Cupcakes!', 'Amaka O.'],
           ['Tutu’s sourdough has become a weekly staple in our home. So wholesome and satisfying.', 'David K.'],
           ['I love how everything feels intentional — from the food to the experience.', 'Zainab A.'],
         ] as [$review, $name])
