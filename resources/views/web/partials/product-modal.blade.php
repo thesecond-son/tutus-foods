@@ -29,11 +29,20 @@
 
       <form action="{{ route('cart.add', $product->id) }}" method="POST" class="pt-4">
         @csrf
+
+        @if ($product->inventory > 0)
         <button 
           type="submit"
           class="w-full bg-[#ff5887] hover:bg-[#ff4073] text-white font-semibold py-3 rounded-lg transition"
         >
           Add to Cart
+        </button>
+        @else
+        <button 
+          type="button"
+          class="w-full bg-gray-400 text-white font-semibold py-3 rounded-lg cursor-not-allowed"
+          disabled>
+        Out of Stock
         </button>
       </form>
     </div>

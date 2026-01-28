@@ -99,6 +99,7 @@
             </button>
 
             <!-- Add to Cart -->
+             @if ($product->inventory > 0)
             <button
               onclick="
                 @if ($product->product_options && count($product->product_options))
@@ -113,6 +114,7 @@
                       d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 7M7 13l-1.6 8H19a1 1 0 001-1V6H6L5 3H3z" />
               </svg>
             </button>
+            @endif
 
             <form id="directAddForm{{ $product->id }}" method="POST" action="{{ route('cart.add', $product->id) }}" class="hidden">
               @csrf

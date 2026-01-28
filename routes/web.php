@@ -8,7 +8,8 @@ use App\Http\Controllers\Web\{
     ProductController,
     CartController,
     CheckoutController,
-    CorporateRequestController
+    CorporateRequestController,
+    PagesController,
 };
 use App\Models\Order;
 use App\Mail\CustomerOrderMail;
@@ -34,7 +35,10 @@ Route::get('/login-test', function() {
 
 // Public pages
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/about', [PagesController::class, 'about'])->name('about');
+
 Route::post('/newsletter/subscribe', [HomeController::class, 'subscribe'])->name('newsletter.subscribe');
+
 //Public Products Pages
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/category/{slug}', [ProductController::class, 'index'])->name('products.category');

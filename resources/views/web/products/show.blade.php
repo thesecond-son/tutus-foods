@@ -59,6 +59,7 @@ input[type=number] { -moz-appearance: textfield; }
   </div>
 
   <!-- Add to Cart Button (always show) -->
+  @if ($product->inventory > 0)
   <button
     type="button"
     class="add-to-cart-btn w-full bg-[#ff5887] hover:bg-[#ff4073] text-white font-semibold py-3 rounded-lg text-lg transition"
@@ -66,6 +67,14 @@ input[type=number] { -moz-appearance: textfield; }
     data-price="{{ $product->base_price }}">
     Add to Cart | £{{ number_format($product->base_price, 2) }}
   </button>
+  @else
+  <button
+    type="button"
+    class="w-full bg-gray-400 text-white font-semibold py-3 rounded-lg cursor-not-allowed text-lg"
+    disabled>
+    Out of Stock
+  </button>
+  @endif
 </form>
 
   </div>
