@@ -238,8 +238,7 @@
       <div id="review-slider" class="flex transition-transform duration-500 ease-out">
 
         @foreach([
-          ['​I love Tutu's Foods' cakes and treats. Had my first bite in 2019 - the cakes are moist, creamy, delicious, just the right amount of sugar, beautiful works of art (you'll be pleased by how they look). 
-          Oh the icing texture is so creamy (creamier than ice cream). Her attention to detail and hygiene is excellent. I highly recommend Tutu's Cupcakes!', 'Amaka O.'],
+          ["I love Tutu's Foods cakes and treats. Had my first bite in 2019 - the cakes are moist, creamy, delicious, just the right amount of sugar, beautiful works of art (you'll be pleased by how they look). Oh the icing texture is so creamy (creamier than ice cream). Her attention to detail and hygiene is excellent. I highly recommend Tutu's Cupcakes!", 'Gbemi A.'],
           ['Tutu’s sourdough has become a weekly staple in our home. So wholesome and satisfying.', 'David K.'],
           ['I love how everything feels intentional — from the food to the experience.', 'Zainab A.'],
         ] as [$review, $name])
