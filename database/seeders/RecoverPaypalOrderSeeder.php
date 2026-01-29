@@ -33,8 +33,8 @@ class RecoverPaypalOrderSeeder extends Seeder
 
             'total_amount' => 17.75,
             'payment_method' => 'paypal',
-            'payment_status' => 'completed',
-            'delivery_pickup_status' => 'pending',
+            'payment_status' => 'paid',
+            'delivery_pickup_status' => 0,
 
             'created_at' => now(),
             'updated_at' => now(),
