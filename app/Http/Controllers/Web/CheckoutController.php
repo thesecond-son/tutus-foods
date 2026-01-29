@@ -97,6 +97,7 @@ class CheckoutController extends Controller
             }
 
             OrderItem::insert($orderItems);
+            \Log::info('Items Ordered', ['Order Items' => $orderItems]);
     
             // Clear cart
             session()->forget('cart');
