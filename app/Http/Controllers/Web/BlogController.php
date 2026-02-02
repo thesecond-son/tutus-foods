@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Blog;
 use App\Models\BlogCategory;
 use App\Models\BlogComment;
+use App\Models\HomepageSetting;
 
 class BlogController extends Controller
 {
@@ -14,8 +15,9 @@ class BlogController extends Controller
     {
         $categories = BlogCategory::withCount('blogs')->get();
         $blogs = Blog::with('categories')->latest()->paginate(12);
+        $homepage = HomepageSetting::firstOrFail();
 
-        return view('web.blog.index', compact('categories', 'blogs'));
+        return view('web.blog.index', compact('categories', 'blogs', 'homepage'));
     }
 
     public function category($slug)
