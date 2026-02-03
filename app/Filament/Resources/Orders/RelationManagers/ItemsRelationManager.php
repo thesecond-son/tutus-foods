@@ -22,6 +22,18 @@ class ItemsRelationManager extends RelationManager
             TextColumn::make('quantity'),
             TextColumn::make('unit_price')->money('GBP'),
             TextColumn::make('total_price')->money('GBP'),
+            TextColumn::make('product_options')
+                ->label('Options')
+                ->formatStateUsing(function ($state) {
+                    if (empty($state) || !is_array($state)) {
+                        return '—';
+                    }
+
+                    return collect($state)
+                        ->map(fn ($value, $key) => "• " . ucfirst($key) . ': ' . $value)
+                        ->implode("\n");
+                })
+                ->wrap(),
         ])
         ->filters([
             //

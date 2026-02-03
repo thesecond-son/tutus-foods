@@ -84,13 +84,16 @@ class CheckoutController extends Controller
     
             // Prepare multiple order items
             $orderItems = [];
-            foreach ($cart as $productId => $details) {
+            foreach ($cart as $details) {
                 $orderItems[] = [
                     'order_id' => $order->id,
-                    'product_id' => $productId,
+                    'product_id' => $details['id'], // ✅ REAL ID
                     'quantity' => $details['quantity'],
                     'unit_price' => $details['price'],
                     'total_price' => $details['price'] * $details['quantity'],
+                    'product_options' => !empty($details['options'])
+                        ? json_encode($details['options'])
+                        : null,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
@@ -105,7 +108,7 @@ class CheckoutController extends Controller
             // REGISTER EMAILS HERE (inside transaction)
     DB::afterCommit(function () use ($order) {
         Mail::to($order->customer_email)->send(new CustomerOrderMail($order));
-        Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
+        // Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
         // \Log::info('Email sent AFTER COMMIT for order ' . $order->order_number);
     });
     

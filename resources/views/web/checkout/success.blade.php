@@ -42,7 +42,13 @@
                             <p class="font-medium text-gray-900 text-sm">{{ $item->product->name ?? 'Unknown Product' }}</p>
                             <p class="text-xs text-gray-500">Qty: {{ $item->quantity }}</p>
                             @if(!empty($item->product_options))
-                                <p class="text-xs text-gray-400">Options: {{ $item->product_options }}</p>
+                                <ul style="margin: 6px 0 0 0; padding-left: 16px;">
+                                    @foreach($item->product_options as $name => $value)
+                                        <li>
+                                            <strong>{{ $name }}:</strong> {{ $value }}
+                                        </li>
+                                    @endforeach
+                                </ul>
                             @endif
                         </div>
                         <p class="text-sm font-semibold text-gray-700">

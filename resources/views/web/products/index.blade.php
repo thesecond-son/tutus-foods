@@ -200,7 +200,7 @@ function openProductModal(url) {
 
             // Setup Add-to-Cart button(s)
             content.querySelectorAll('.add-to-cart-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
+      btn.addEventListener('click', async () => {
         const productId = btn.dataset.productId;
         if (!productId) return console.error("Product ID not found!");
 
@@ -208,6 +208,17 @@ function openProductModal(url) {
         let quantity = 1;
         const qtyInput = content.querySelector('input[name="quantity"]');
         if (qtyInput) quantity = parseInt(qtyInput.value) || 1;
+
+        // ✅ Collect selected options at click-time
+        const options = {};
+        content.querySelectorAll('select[name^="options["]').forEach(select => {
+            const key = select.name.match(/\[(.*)\]/)?.[1];
+            if (key && select.value) {
+                options[key] = select.value;
+            }
+        });
+
+        console.log('🧩 Selected options:', options);
 
         btn.disabled = true;
         btn.innerHTML = 'Adding...';
@@ -219,7 +230,10 @@ function openProductModal(url) {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ quantity })
+                body: JSON.stringify({ 
+                  quantity,
+                  options
+                 })
             });
 
             if (res.ok) {

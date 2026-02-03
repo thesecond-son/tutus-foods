@@ -75,8 +75,14 @@
                   <tr>
                     <td style="padding:8px;">
                       {{ $item->product->name ?? 'Item' }}
-                      @if($item->product_options)
-                      <div style="font-size:12px; color:#888;">{{ $item->product_options }}</div>
+                      @if(!empty($item->product_options))
+                          <ul style="margin: 6px 0 0 0; padding-left: 16px;">
+                              @foreach($item->product_options as $name => $value)
+                                  <li>
+                                      <strong>{{ $name }}:</strong> {{ $value }}
+                                  </li>
+                              @endforeach
+                          </ul>
                       @endif
                     </td>
                     <td style="padding:8px;">{{ $item->quantity }}</td>
