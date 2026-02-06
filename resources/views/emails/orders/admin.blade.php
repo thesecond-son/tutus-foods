@@ -26,6 +26,12 @@
                         <p style="margin:6px 0; font-size:0.95rem;"><strong>Customer:</strong> <span style="color:#ff5887; font-weight:600;">{{ $order->customer_first_name }} {{ $order->customer_last_name }}</span></p>
                         <p style="margin:6px 0; font-size:0.95rem;"><strong>Email:</strong> <span style="color:#ff5887; font-weight:600;">{{ $order->customer_email }}</span></p>
                         <p style="margin:6px 0; font-size:0.95rem;"><strong>Phone:</strong> <span style="color:#ff5887; font-weight:600;">{{ $order->customer_phone }}</span></p>
+                        @if(!empty($order->customer_instagram))
+                        <p style="margin:6px 0; font-size:0.95rem;"><strong>Instagram:</strong> <span style="color:#ff5887; font-weight:600;">{{ $order->customer_instagram }}</span></p>
+                        @endif
+                        @if(!empty($order->order_notes))
+                            <p style="margin:6px 0; font-size:0.95rem;"><strong>Order Notes:</strong><span style="color:#ff5887; font-weight:600;">{{ $order->order_notes }}</span></p>
+                        @endif
                         <p style="margin:6px 0; font-size:0.95rem;"><strong>Delivery Type:</strong> <span style="color:#ff5887; font-weight:600;">{{ $order->delivery_type }}</span></p>
 
                         @if ($order->delivery_type === 'delivery')
@@ -60,8 +66,14 @@
                                 <tr>
                                     <td style="padding:5px; font-size:0.95rem;">
                                         {{ $item->product->name ?? 'Item' }}
-                                        @if($item->product_options)
-                                        <div style="font-size:12px; color:#888;">{{ $item->product_options }}</div>
+                                        @if(!empty($item->product_options))
+                                            <ul style="margin: 6px 0 0 0; padding-left: 16px;">
+                                                @foreach($item->product_options as $name => $value)
+                                                    <li>
+                                                        <strong>{{ $name }}:</strong> {{ $value }}
+                                                    </li>
+                                                @endforeach
+                                            </ul>
                                         @endif
                                     </td>
                                     <td style="padding:5px; font-size:0.95rem;">{{ $item->quantity }}</td>

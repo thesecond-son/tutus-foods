@@ -552,7 +552,10 @@ function loadSquareButton() {
         customer_first_name: document.querySelector('input[name="customer_first_name"]').value,
         customer_last_name: document.querySelector('input[name="customer_last_name"]').value,
         customer_phone: document.querySelector('input[name="customer_phone"]').value,
+        customer_instagram: document.querySelector('input[name="customer_instagram"]').value ?? null,
         delivery_type: document.querySelector('select[name="delivery_type"]').value,
+
+        order_notes: document.querySelector('textarea[name="order_notes"]').value ?? null,
         
         delivery_address: document.querySelector('textarea[name="delivery_address"]')?.value ?? null,
         delivery_town: document.querySelector('textarea[name="delivery_town"]')?.value ?? null,
@@ -715,7 +718,10 @@ document.getElementById('sq-pay').addEventListener('click', async () => {
             const firstNameEl = document.querySelector('input[name="customer_first_name"]');
             const lastNameEl = document.querySelector('input[name="customer_last_name"]');
             const phoneEl = document.querySelector('input[name="customer_phone"]');
+            const instagramEl = document.querySelector('input[name="customer_instagram"]');
             const deliveryTypeEl = document.querySelector('select[name="delivery_type"]');
+
+            const orderNotesEl = document.querySelector('textarea[name="order_notes"]');
             
             const deliveryOptionSelect = document.getElementById('delivery_option_id');
             const pickupLocationSelect = document.querySelector('#pickup_container select[name="pickup_location_id"]');
@@ -734,6 +740,8 @@ document.getElementById('sq-pay').addEventListener('click', async () => {
                 customer_first_name: firstNameEl.value,
                 customer_last_name: lastNameEl.value,
                 customer_phone: phoneEl.value,
+                customer_instagram: instagramEl.value ?? null,
+                order_notes: orderNotesEl.value ?? null,
                 delivery_type: deliveryTypeEl.value,
 
                 delivery_address: document.querySelector('textarea[name="delivery_address"]')?.value ?? null,
