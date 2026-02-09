@@ -11,6 +11,7 @@ use App\Filament\Resources\DeliveryOptions\Schemas\DeliveryOptionInfolist;
 use App\Filament\Resources\DeliveryOptions\Tables\DeliveryOptionsTable;
 use App\Models\DeliveryOption;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -21,6 +22,8 @@ class DeliveryOptionResource extends Resource
     protected static ?string $model = DeliveryOption::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Delivery Settings';
 
     protected static ?string $recordTitleAttribute = 'name';
 

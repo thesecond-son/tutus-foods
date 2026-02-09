@@ -11,6 +11,7 @@ use App\Filament\Resources\CorporateRequests\Schemas\CorporateRequestInfolist;
 use App\Filament\Resources\CorporateRequests\Tables\CorporateRequestsTable;
 use App\Models\CorporateRequest;
 use BackedEnum;
+use UnitEnum;  
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -21,6 +22,8 @@ class CorporateRequestResource extends Resource
     protected static ?string $model = CorporateRequest::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Order Management';
 
     protected static ?string $recordTitleAttribute = 'CorporateRequest';
 

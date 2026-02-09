@@ -11,6 +11,7 @@ use App\Filament\Resources\HomepageSettings\Schemas\HomepageSettingInfolist;
 use App\Filament\Resources\HomepageSettings\Tables\HomepageSettingsTable;
 use App\Models\HomepageSetting;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -21,6 +22,8 @@ class HomepageSettingResource extends Resource
     protected static ?string $model = HomepageSetting::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Pages Settings';
 
     protected static ?string $recordTitleAttribute = 'name';
 

@@ -45,46 +45,55 @@
       </span>
 
       <h1 class="about-hero-title text-4xl md:text-5xl xl:text-6xl font-bold text-gray-900 leading-tight">
-        We Create The World’s Most<br class="hidden md:block">
-        Exquisite Treats
+      {!! nl2br(e($aboutUs['hero']['title'] ?? '')) !!}
       </h1>
 
-      <p class="text-gray-700 text-base md:text-lg leading-relaxed max-w-xl">
-        Welcome to <strong>Tutu’s Foods</strong> — where tradition, flavour, and community
-        come together under one roof. We’re a family of food brands built on
-        love, culture, and craft.
-      </p>
+      @if(!empty($aboutUs['hero']['subtitle1']))
+        <p class="text-gray-700 text-base md:text-lg leading-relaxed max-w-xl">
+          {!! nl2br(e($aboutUs['hero']['subtitle1'])) !!}
+        </p>
+      @endif
 
-      <p class="text-gray-700 text-base md:text-lg leading-relaxed max-w-xl">
-        From the sweet joys of cupcakes to the soulful chew of sourdough and
-        the warm nostalgia of puff puff, we believe every bite should
-        tell a story.
-      </p>
+      @if(!empty($aboutUs['hero']['subtitle2']))
+        <p class="text-gray-700 text-base md:text-lg leading-relaxed max-w-xl">
+          {!! nl2br(e($aboutUs['hero']['subtitle2'])) !!}
+        </p>
+      @endif
 
-      <a href="{{ url('/products') }}"
-         class="inline-flex items-center justify-center border-2 border-[var(--brand-pink)] text-[var(--brand-pink)]
-                hover:bg-[var(--brand-pink)] hover:text-white font-semibold px-8 py-3 rounded-full
-                transition-all duration-300 w-fit">
-        Explore Our Menu
-      </a>
+      @if(!empty($aboutUs['hero']['button_text']) && !empty($aboutUs['hero']['button_link']))
+        <a href="{{ $aboutUs['hero']['button_link'] }}"
+           class="inline-flex items-center justify-center border-2 border-[var(--brand-pink)] text-[var(--brand-pink)]
+                  hover:bg-[var(--brand-pink)] hover:text-white font-semibold px-8 py-3 rounded-full
+                  transition-all duration-300 w-fit">
+          {{ $aboutUs['hero']['button_text'] }}
+        </a>
+      @endif
     </div>
 
     <!-- Image Stack -->
     <div class="relative about-image-stack fade-up">
 
+      @php
+        $images = $aboutUs['hero']['images'] ?? [];
+      @endphp
+
       <!-- Main image -->
-      <img
-        src="{{ asset('images/about-main.webp') }}"
-        alt="Tutu’s Foods cupcakes"
-        class="rounded-3xl w-full object-cover"
-      >
+      @if(isset($images[0]['image']))
+        <img
+          src="{{ asset('storage/' . $images[0]['image']) }}"
+          alt="Hero image"
+          class="rounded-3xl w-full object-cover"
+        >
+      @endif
 
       <!-- Floating image -->
-      <img
-        src="{{ asset('images/about-secondary.webp') }}"
-        alt="Handcrafted cupcakes"
-        class="hidden md:block absolute -bottom-14 -left-14 w-56 h-56 object-cover rounded-2xl border-8 border-white"
-      >
+      @if(isset($images[1]['image']))
+        <img
+          src="{{ asset('storage/' . $images[1]['image']) }}"
+          alt="Hero secondary image"
+          class="hidden md:block absolute -bottom-14 -left-14 w-56 h-56 object-cover rounded-2xl border-8 border-white"
+        >
+      @endif
 
     </div>
 
@@ -95,80 +104,60 @@
 <section class="bg-white py-20 px-6 text-center">
   <div class="max-w-3xl mx-auto space-y-6 fade-up">
     <h2 class="text-3xl md:text-4xl font-semibold text-[var(--brand-pink)]">
-      Our Philosophy
+    {{ $aboutUs['philisophy']['title'] ?? '' }}
     </h2>
-    <p class="text-gray-600 text-base md:text-lg">
-      Elevate everday — high-quality ingredients, no shortcuts.
-      Bring people together — around tables, markets, and community.
-      Keep it simple, soulful & honest.
-    </p>
-    <a href="{{ url('/products') }}"
-       class="inline-flex items-center justify-center bg-[var(--brand-pink)]
-              hover:bg-[var(--brand-pink-light)] text-white font-semibold px-10 py-4 rounded-full
-              shadow-md transition-transform transform hover:scale-105 duration-300">
-      Explore Our Menu
-    </a>
+
+    {{-- Philosophy body text --}}
+    @if(!empty($aboutUs['philisophy']['description']))
+      <p class="text-gray-600 text-base md:text-lg">
+        {!! nl2br(e($aboutUs['philisophy']['description'])) !!}
+      </p>
+    @endif
+
+    @if(
+        !empty($aboutUs['philisophy']['button_text']) &&
+        !empty($aboutUs['philisophy']['button_link'])
+    )
+      <a href="{{ $aboutUs['philisophy']['button_link'] }}"
+         class="inline-flex items-center justify-center bg-[var(--brand-pink)]
+                hover:bg-[var(--brand-pink-light)] text-white font-semibold px-10 py-4 rounded-full
+                shadow-md transition-transform transform hover:scale-105 duration-300">
+        {{ $aboutUs['philisophy']['button_text'] }}
+      </a>
+    @endif
+
   </div>
 </section>
 
-<section class="py-20 lg:py-28 bg-white">
+<!-- Tutus Family -->
+<section class="py-20 lg:py-24 bg-white">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <!-- Section Title -->
+      @if(!empty($aboutUs['tutus_family']['title']))
         <h2 class="text-center text-3xl md:text-4xl font-semibold text-[var(--brand-pink)] mb-14">
-            Meet the Tutu’s Family
+          {{ $aboutUs['tutus_family']['title'] }}
         </h2>
+      @endif
 
         <!-- Cards Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
 
             <!-- Card -->
+            @foreach(($aboutUs['tutus_family']['items'] ?? []) as $item)
+            @if(is_array($item))
             <div class="bg-pink-50 rounded-2xl p-8">
+
                 <h3 class="text-[var(--brand-pink)] font-semibold text-lg mb-4">
-                    Tutu’s Cupcakes
+                {{ $item['title'] ?? '' }}
                 </h3>
+
                 <p class="text-gray-800 leading-relaxed space-y-2">
-                    Elevate everyday eating – high-quality ingredients, no shortcuts<br>
-                    Bring people together – around tables, markets, and community<br>
-                    Keep it simple, soulful & honest
+                {!! nl2br(e($item['subtitle'] ?? '')) !!}
                 </p>
             </div>
-
-            <!-- Card -->
-            <div class="bg-pink-50 rounded-2xl p-8">
-                <h3 class="text-[var(--brand-pink)] font-semibold text-lg mb-4">
-                    Tutu’s Sourdough
-                </h3>
-                <p class="text-gray-800 leading-relaxed">
-                    Crusty. Tangy. Made the slow way. Our sourdough loaves are
-                    naturally fermented, baked with patience, and crafted to
-                    last. A true staple for your kitchen.
-                </p>
-            </div>
-
-            <!-- Card -->
-            <div class="bg-pink-50 rounded-2xl p-8">
-                <h3 class="text-[var(--brand-pink)] font-semibold text-lg mb-4">
-                    The Original Sourdough Puff Puff
-                </h3>
-                <p class="text-gray-800 leading-relaxed">
-                    Crispy on the outside, airy on the inside. A nostalgic treat,
-                    reimagined with sourdough for extra depth and character.
-                    Sweet or savoury — puff puff for every occasion.
-                </p>
-            </div>
-
-            <!-- Card -->
-            <div class="bg-pink-50 rounded-2xl p-8">
-                <h3 class="text-[var(--brand-pink)] font-semibold text-lg mb-4">
-                    Tutu’s Pantry
-                </h3>
-                <p class="text-gray-800 leading-relaxed">
-                    Staples that spark creativity. From spice blends and sauces
-                    to essential ingredients, our pantry collection makes
-                    everyday cooking a little more inspired.
-                </p>
-            </div>
+            @endif
+            @endforeach
 
         </div>
     </div>
@@ -176,49 +165,37 @@
 
 
 <!-- OUR STORY -->
-<section class="bg-white py-20 md:py-28 px-6">
+<section class="bg-white py-20 md:py-24 px-6">
   <div class="max-w-4xl mx-auto text-center space-y-6 fade-up">
 
     <h2 class="text-3xl md:text-4xl font-semibold text-[var(--brand-pink)]">
-      Our Story
+    {{ $aboutUs['story']['title'] }}
     </h2>
 
+    @foreach(($aboutUs['story']['items'] ?? []) as $item)
     <p class="text-gray-600 text-base md:text-lg leading-relaxed">
-    What began as a small cupcake venture has grown into something bigger: 
-    a home for multiple brands, each with its own flavour and story.
+   {!! nl2br(e($item['paragraph'] ?? '')) !!}
     </p>
-
-    <p class="text-gray-600 text-base md:text-lg leading-relaxed">
-    At the heart of Tutu’s Foods is a simple belief: good food should nourish, connect, and delight. 
-    Every loaf, every cupcake, every puff puff, every pantry jar carries our promise of quality and care.
-    </p>
+    @endforeach
 
   </div>
 </section>
 
-<!-- OUR STORY -->
-<section class="bg-white py-20 md:py-28 px-6">
+<!--Join Us-->
+<section class="bg-white py-20 md:py-24 px-6">
   <div class="max-w-4xl mx-auto text-center space-y-6 fade-up">
 
-    <h2 class="text-3xl md:text-4xl font-semibold text-[var(--brand-pink)]">
-      Join Us At The Table
-    </h2>
+  @if(!empty($aboutUs['join_us']['title']))
+      <h2 class="text-3xl md:text-4xl font-semibold text-[var(--brand-pink)]">
+        {{ $aboutUs['join_us']['title'] }}
+      </h2>
+    @endif
 
-    <p class="text-gray-600 text-base md:text-lg leading-relaxed">
-      We'd love to share this journey with you.
-    </p>
-
-    <p class="text-gray-600 text-base md:text-lg leading-relaxed">
-    Explore each brand on our website.
-    </p>
-
-    <p class="text-gray-600 text-base md:text-lg leading-relaxed">
-    Read our blog from Tutu’s Kitchen for stories and tips
-    </p>
-
-    <p class="text-gray-600 text-base md:text-lg leading-relaxed">
-    Find us at local markets or shop online
-    </p>
+    @foreach(($aboutUs['join_us']['items'] ?? []) as $item)
+      <p class="text-gray-600 text-base md:text-lg leading-relaxed">
+        {!! nl2br(e($item['paragraph'] ?? '')) !!}
+      </p>
+    @endforeach
 
   </div>
 </section>
@@ -228,37 +205,33 @@
 <section class="bg-[var(--brand-bg)] py-20 px-6">
   <div class="max-w-4xl mx-auto text-center">
 
-    <h2 class="text-[var(--brand-pink)] text-3xl md:text-4xl font-semibold mb-3 fade-up">
-      What our customers are saying
-    </h2>
+  @if(!empty($aboutUs['reviews']['title']))
+      <h2 class="text-[var(--brand-pink)] text-3xl md:text-4xl font-semibold mb-3 fade-up">
+        {{ $aboutUs['reviews']['title'] }}
+      </h2>
+    @endif
 
     <!-- Slider -->
     <div class="relative overflow-hidden">
 
       <div id="review-slider" class="flex transition-transform duration-500 ease-out">
 
-      @foreach ([
-            ["I love Tutu's Foods cakes and treats. Had my first bite in 2019 - the cakes are moist, creamy, delicious, just the right amount of sugar, beautiful works of art (you'll be pleased by how they look). Oh the icing texture is so creamy (creamier than ice cream). Her attention to detail and hygiene is excellent. I highly recommend Tutu's Cupcakes!", 'Gbemi A.'],
-            ['Tutu’s sourdough has become a weekly staple in our home. So wholesome and satisfying.', 'David K.'],
-            ['I love how everything feels intentional — from the food to the experience.', 'Zainab A.'],
-        ] as $item)
+      @foreach(($aboutUs['reviews']['items'] ?? []) as $item)
+          <div class="min-w-full px-4">
+            <div class="soft-card p-10 max-w-2xl mx-auto">
 
-            @php
-                [$review, $name] = $item;
-            @endphp
+              <p class="text-gray-700 text-lg leading-relaxed mb-6">
+                “{!! nl2br(e($item['review'] ?? '')) !!}”
+              </p>
 
-            <div class="min-w-full px-4">
-                <div class="soft-card p-10 max-w-2xl mx-auto">
-                    <p class="text-gray-700 text-lg leading-relaxed mb-6">
-                        “{{ $review }}”
-                    </p>
-                    <span class="block text-sm font-semibold text-gray-900">
-                        — {{ $name }}
-                    </span>
-                </div>
+              <span class="block text-sm font-semibold text-gray-900">
+                — {{ $item['name'] ?? '' }}
+              </span>
+
             </div>
-
+          </div>
         @endforeach
+        
       </div>
 
       <!-- Dots -->

@@ -36,6 +36,9 @@ Route::get('/login-test', function() {
 // Public pages
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', [PagesController::class, 'about'])->name('about');
+Route::get('/refund-policy', [PagesController::class, 'refund'])->name('refund-policy');
+Route::get('/privacy-policy', [PagesController::class, 'privacy'])->name('privacy-policy');
+
 
 Route::post('/newsletter/subscribe', [HomeController::class, 'subscribe'])->name('newsletter.subscribe');
 

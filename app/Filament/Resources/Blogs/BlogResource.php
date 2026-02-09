@@ -11,6 +11,7 @@ use App\Filament\Resources\Blogs\Schemas\BlogInfolist;
 use App\Filament\Resources\Blogs\Tables\BlogsTable;
 use App\Models\Blog;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -21,6 +22,8 @@ class BlogResource extends Resource
     protected static ?string $model = Blog::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Blog Management';
 
     protected static ?string $recordTitleAttribute = 'name';
 

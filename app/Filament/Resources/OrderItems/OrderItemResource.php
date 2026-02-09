@@ -11,6 +11,7 @@ use App\Filament\Resources\OrderItems\Schemas\OrderItemInfolist;
 use App\Filament\Resources\OrderItems\Tables\OrderItemsTable;
 use App\Models\OrderItem;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -21,6 +22,8 @@ class OrderItemResource extends Resource
     protected static ?string $model = OrderItem::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Order Management';
 
     protected static ?string $recordTitleAttribute = 'name';
 

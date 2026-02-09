@@ -11,6 +11,7 @@ use App\Filament\Resources\NewsletterSubscribers\Schemas\NewsletterSubscribersIn
 use App\Filament\Resources\NewsletterSubscribers\Tables\NewsletterSubscribersTable;
 use App\Models\NewsletterSubscriber;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -21,6 +22,8 @@ class NewsletterSubscribersResource extends Resource
     protected static ?string $model = NewsletterSubscriber::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Newsletter Management';
 
     protected static ?string $recordTitleAttribute = 'name';
 

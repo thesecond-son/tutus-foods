@@ -11,6 +11,7 @@ use App\Filament\Resources\PickupLocations\Schemas\PickupLocationInfolist;
 use App\Filament\Resources\PickupLocations\Tables\PickupLocationsTable;
 use App\Models\PickupLocation;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -21,6 +22,8 @@ class PickupLocationResource extends Resource
     protected static ?string $model = PickupLocation::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Delivery Settings';
 
     protected static ?string $recordTitleAttribute = 'name';
 
