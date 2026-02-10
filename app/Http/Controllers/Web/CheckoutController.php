@@ -57,7 +57,14 @@ class CheckoutController extends Controller
 
         $totalAmount = $this->calculateTotal($cart, $request);
 
-        return DB::transaction(function() use ($request, $cart, $totalAmount, $paymentMethod, $paymentStatus, $paymentReference) {
+        $order = DB::transaction(function () use (
+            $request,
+            $cart,
+            $totalAmount,
+            $paymentMethod,
+            $paymentStatus,
+            $paymentReference
+        ) {
             $order = Order::create([
                 'order_number' => 'ORD-' . strtoupper(uniqid()),
                 'customer_email' => $request->customer_email,
@@ -78,6 +85,7 @@ class CheckoutController extends Controller
                 'total_amount' => $totalAmount,
                 'payment_method' => $paymentMethod,
                 'payment_status' => $paymentStatus,
+                'status'              => 'completed',
                 'payment_reference' => $paymentReference,
                 'delivery_pickup_status' => false,
             ]);
@@ -104,26 +112,43 @@ class CheckoutController extends Controller
     
             // Clear cart
             session()->forget('cart');
+    
+            return $order;
+        });
 
-            // REGISTER EMAILS HERE (inside transaction)
+        // REGISTER EMAILS HERE (inside transaction)
     DB::afterCommit(function () use ($order) {
         Mail::to($order->customer_email)->send(new CustomerOrderMail($order));
         // Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
         // \Log::info('Email sent AFTER COMMIT for order ' . $order->order_number);
     });
-    
-            return $order;
-        });
-    
+
+    return $order;
 }
 
 
 // --- PayPal ---
 public function createPayPalOrder(Request $request)
 {
+    $cart = $request->cart ?? session()->get('cart');
+
+    if (!$cart || empty($cart)) {
+        return response()->json([
+            'error' => true,
+            'message' => 'Cart is empty',
+        ], 422);
+    }
+
+
     try {
 
+         // Calculate total from cart instead of trusting frontend
         $total = floatval($request->total ?? 0);
+
+        \Log::info('Creating PayPal Order', [
+            'cart' => $cart,
+            'total' => $total
+        ]);        
 
         // Temporary log
         if ($total <= 0) {
@@ -132,13 +157,20 @@ public function createPayPalOrder(Request $request)
                 'message' => 'Total must be greater than zero.',
             ], 422);
         }
-        
 
         $provider = new PayPalClient;
         $provider->setApiCredentials(config('paypal'));
 
         // 1. Generate Access Token
-        $provider->getAccessToken();
+        $accessToken = $provider->getAccessToken();
+
+        if (!$accessToken) {
+            \Log::error('PayPal access token failed');
+            return response()->json([
+                'error' => true,
+                'message' => 'Could not get PayPal access token',
+            ], 500);
+        }
 
         // 2. Create actual ORDER
         $order = $provider->createOrder([
@@ -151,16 +183,57 @@ public function createPayPalOrder(Request $request)
             ]]
         ]);
 
-        \Log::info('PayPal Order Created', $order);
+        \Log::info('PayPal raw response', ['order' => $order]);
 
-        // If PayPal returns an error
-        if (isset($order['error'])) {
+         // Check for errors from PayPal
+         if (!isset($order['id'])) {
+            \Log::error('PayPal Order creation failed', ['response' => $order]);
             return response()->json([
-                'error'   => true,
-                'message' => $order['error']['message'] ?? 'PayPal validation failed',
-                'paypal'  => $order,
-            ], 422);
+                'error' => true,
+                'message' => $order['message'] ?? 'PayPal order creation failed',
+                'paypal' => $order,
+            ], 500);
         }
+
+        \Log::error('PayPal Order Creation Response', $order);
+
+        $request->validate([
+            'customer_email' => 'required|email',
+            'customer_first_name' => 'required|string',
+            'customer_last_name' => 'required|string',
+        ]);        
+
+        $localOrder = Order::create([
+            'order_number'      => 'ORD-' . strtoupper(uniqid()),
+            'paypal_order_id'   => $order['id'],
+            'payment_reference' => $order['id'],
+        
+            'customer_email'    => $request->customer_email,
+            'customer_first_name' => $request->customer_first_name,
+            'customer_last_name'  => $request->customer_last_name,
+            'customer_phone'    => $request->customer_phone,
+        
+            'delivery_type'     => $request->delivery_type,
+            'delivery_option_id'=> $request->delivery_option_id,
+            'delivery_address'  => $request->delivery_address,
+            'delivery_town'     => $request->delivery_town,
+            'delivery_postcode' => $request->delivery_postcode,
+            'delivery_fee'      => $request->delivery_fee ?? 0,
+        
+            'pickup_location_id'=> $request->pickup_location_id,
+            'pickup_date'       => $request->pickup_date,
+            'pickup_time'       => $request->pickup_time,
+
+            'cart_snapshot'     => json_encode($request->cart ?? session()->get('cart', [])),
+        
+            'total_amount'      => $total,
+            'payment_method'    => 'paypal',
+            'payment_status'    => 'pending',
+            'status'            => 'pending',
+        ]);        
+        
+        \Log::info('Local Order Created', ['order' => $localOrder->toArray()]);
+
 
         // SUCCESS — return the PayPal order ID
         return response()->json([
@@ -184,26 +257,40 @@ public function createPayPalOrder(Request $request)
 
 public function capturePayPalOrder(Request $request)
 {
-    if (!$request->expectsJson()) {
+    \Log::info('Incoming PayPal capture request', $request->all());
+
+    if (! $request->expectsJson()) {
         return response()->json(['error' => 'Invalid request'], 422);
     }
 
-    $existingOrder = Order::where('payment_reference', $request->order_id)->first();
+    $orderID = $request->input('order_id');
 
-    if ($existingOrder) {
-        return response()->json([
-            'status' => 'success',
-            'order_id' => $existingOrder->id,
+    // 1️⃣ Find local order FIRST using the PayPal order ID
+    $order = Order::where('paypal_order_id', $orderID)->first();
+
+    if (! $order) {
+        \Log::error('PayPal capture but local order not found', [
+            'paypal_order_id' => $orderID,
         ]);
+
+        return response()->json([
+            'error' => 'Order not found',
+        ], 404);
     }
 
+    // 2️⃣ Prevent double capture / double restore
+    if ($order->payment_status === 'paid') {
+        return response()->json([
+            'status' => 'success',
+            'order_id' => $order->id,
+        ]);
+    }
     
+    // 3️⃣ Capture payment from PayPal
     $provider = new PayPalClient;
     $provider->setApiCredentials(config('paypal'));
     $provider->getAccessToken();
 
-    // Correct request key
-    $orderID = $request->order_id;
 
     // Log for debugging
     \Log::info('PayPal Order Captured', ['order_id' => $orderID]);
@@ -215,16 +302,75 @@ public function capturePayPalOrder(Request $request)
     \Log::info('PayPal Order ID', ['order_id' => $orderID]);
 
 
+    // 4️⃣ Handle success
+    if (($result['status'] ?? null) === 'COMPLETED') {
 
-    if (isset($result['status']) && $result['status'] === 'COMPLETED') {
-        $order = $this->createOrderAfterPayment($request, 'paypal', 'paid', $orderID);
-        return response()->json(['status' => 'success', 'order_id' => $order->id]);
-    }
+        DB::transaction(function () use ($order) {
+    
+            // 1️⃣ Mark order as paid
+            $order->update([
+                'payment_status' => 'paid',
+                'status' => 'completed',
+            ]);
 
+            if ($order->items()->exists()) {
+                return;
+            }
+    
+            // 2️⃣ Restore items from snapshot
+            $cart = json_decode($order->cart_snapshot, true);
+
+            if (!is_array($cart) || empty($cart)) {
+                throw new \Exception('Invalid cart snapshot for order ' . $order->id);
+            }
+
+    
+            $items = [];
+    
+            foreach ($cart as $item) {
+                $items[] = [
+                    'order_id' => $order->id,
+                    'product_id' => $item['id'],
+                    'quantity' => $item['quantity'],
+                    'unit_price' => $item['price'],
+                    'total_price' => $item['price'] * $item['quantity'],
+                    'product_options' => !empty($item['options'])
+                        ? json_encode($item['options'])
+                        : null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+    
+            OrderItem::insert($items);
+    
+            \Log::info('Order restored from PayPal capture', [
+                'order_id' => $order->id,
+                'items' => count($items),
+            ]);
+        });
+    
+        DB::afterCommit(function () use ($order) {
+            Mail::to($order->customer_email)->send(new CustomerOrderMail($order));
+            // Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
+        });
+
+        session()->forget('cart');
+    
+        return response()->json([
+            'status' => 'success',
+            'order_id' => $order->id,
+            'redirect' => route('checkout.success', ['order' => $order->id])
+        ]);
+
+        
+    }    
+
+    // 5️⃣ Capture failed
     return response()->json([
-        'status' => 'success',
-        'redirect' => route('checkout.success')
-    ]);
+        'status' => 'failed',
+        'message' => 'Payment not completed',
+    ], 400);
 }
 
 

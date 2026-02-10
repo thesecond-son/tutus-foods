@@ -11,6 +11,9 @@ class Order extends Model
 
     protected $fillable = [
         'order_number', 
+        'paypal_order_id',
+        'payment_reference',
+        'cart_snapshot',
         'customer_email', 
         'customer_first_name', 
         'customer_last_name',
@@ -29,6 +32,7 @@ class Order extends Model
         'total_amount', 
         'payment_method', 
         'payment_status',
+        'status',
         'delivery_pickup_status',
     ];
 

@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\HomepageSetting;
 use App\Models\AboutUsSettings;
+use App\Models\PrivacyPolicySetting;
+use App\Models\RefundPolicySetting;
 
 class PagesController extends Controller
 {
@@ -25,8 +27,11 @@ class PagesController extends Controller
     {
         $homepage = HomepageSetting::firstOrFail();
 
+        $refundPolicy = RefundPolicySetting::firstOrFail();
+
         return view('web.refund', [
             'homepage' => $homepage,
+            'refundPolicy' => $refundPolicy,
         ]);
     }
 
@@ -34,8 +39,11 @@ class PagesController extends Controller
     {
         $homepage = HomepageSetting::firstOrFail();
 
+        $privacyPolicy = PrivacyPolicySetting::firstOrFail();
+
         return view('web.privacy', [
             'homepage' => $homepage,
+            'privacyPolicy' => $privacyPolicy,
         ]);
     }
 }

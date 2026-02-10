@@ -666,9 +666,51 @@ document.getElementById('sq-pay').addEventListener('click', async () => {
             return;
         }
 
+        const emailEl = document.querySelector('input[name="customer_email"]');
+        const firstNameEl = document.querySelector('input[name="customer_first_name"]');
+        const lastNameEl = document.querySelector('input[name="customer_last_name"]');
+        const phoneEl = document.querySelector('input[name="customer_phone"]');
+        const instagramEl = document.querySelector('input[name="customer_instagram"]');
+        const deliveryTypeEl = document.querySelector('select[name="delivery_type"]');
+
+        const orderNotesEl = document.querySelector('textarea[name="order_notes"]');
+            
+        const deliveryOptionSelect = document.getElementById('delivery_option_id');
+        const pickupLocationSelect = document.querySelector('#pickup_container select[name="pickup_location_id"]');
+        const pickupDateInput = document.getElementById('pickup_date');
+        const pickupTimeSelect = document.querySelector('#pickup_container select[name="pickup_time"]');
         const orderTotal = parseFloat(document.getElementById('orderTotal').textContent.replace('£', '') || 0).toFixed(2);
+
+
+        if (!emailEl || !firstNameEl || !lastNameEl || !phoneEl || !deliveryTypeEl) {
+                console.error("Required checkout fields are missing");
+                alert("Please fill in all required fields before completing the payment.");
+                enablePayPalButton();
+                return;
+            }
+
         paypal.Buttons({
             createOrder: function(data, actions) {
+
+                 // recalc subtotal and deliveryFee
+                const subtotal = Object.values(cart).reduce((sum, p) => sum + (parseFloat(p.price) || 0) * (p.quantity || 0), 0);
+                let deliveryFee = 0;
+
+                // recalc delivery fee dynamically based on current selection
+                const deliveryOptionSelect = document.getElementById('delivery_option_id');
+                const deliveryTypeEl = document.querySelector('select[name="delivery_type"]');
+
+                if (deliveryTypeEl && deliveryTypeEl.value === 'delivery' && deliveryOptionSelect?.value) {
+                    const selectedOption = deliveryOptionSelect.selectedOptions[0];
+                    if (selectedOption) {
+                        const type = selectedOption.dataset.type || '';
+                        const baseRate = parseFloat(selectedOption.dataset.rate || 0);
+                        deliveryFee = baseRate;
+                    }
+                }
+
+                const total = subtotal + deliveryFee;
+
                 return fetch("{{ route('checkout.paypal.create') }}", {
                 method: "POST",
                 headers: {
@@ -678,11 +720,22 @@ document.getElementById('sq-pay').addEventListener('click', async () => {
                 body: JSON.stringify({
                     subtotal: subtotal,
                     delivery_fee: deliveryFee,
-                    total: (subtotal + deliveryFee)
+                    total: (subtotal + deliveryFee),
+                    cart: cart,
+
+                    customer_email: emailEl.value,
+                    customer_first_name: firstNameEl.value,
+                    customer_last_name: lastNameEl.value,
+                    customer_phone: phoneEl.value,
+                    delivery_type: deliveryTypeEl.value,
+                    delivery_address: document.querySelector('textarea[name="delivery_address"]')?.value ?? null,
+                    delivery_town: document.querySelector('textarea[name="delivery_town"]')?.value ?? null,
+                    delivery_postcode: document.querySelector('textarea[name="delivery_postcode"]')?.value ?? null
                 })
             })
                 .then(res => res.json())
                 .then(data => {
+                    console.log('PayPal createOrder response', data);
                     if (!data.orderID) {
                         throw new Error('PayPal order creation failed');
                     }
@@ -753,7 +806,8 @@ document.getElementById('sq-pay').addEventListener('click', async () => {
                 pickup_date: pickupDateInput?.value ?? null,
                 pickup_time: pickupTimeSelect?.value ?? null,
 
-                delivery_fee: deliveryFee
+                delivery_fee: deliveryFee,
+                cart: cart
             };
 
                 return fetch("{{ route('checkout.paypal.capture') }}?order_id=" + data.orderID, {
