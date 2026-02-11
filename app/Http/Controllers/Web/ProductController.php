@@ -38,10 +38,25 @@ class ProductController extends Controller
 
             $currentCategory = Category::where('slug', 'cupcakes')->first();
 
+            // ✅ Open product modal if query string exists
+            $productSlug = $request->query('product');
+            $openProduct = null;
+
+            if ($productSlug) {
+                // Search across all stacked categories
+                $openProduct = Product::where('slug', $productSlug)
+                    ->where('active', true)
+                    ->whereHas('categories', function ($q) {
+                        $q->whereIn('slug', ['cupcakes','loaf-cakes','floral-cupcakes']);
+                    })
+                    ->first();
+            }
+
             return view('web.products.cupcakes', [
                 'categories'        => $categories,
                 'stackedCategories' => $stackedCategories,
                 'currentCategory'   => null,
+                'openProduct'       => $openProduct,
             ]);
         }
 
