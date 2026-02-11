@@ -246,6 +246,12 @@ document.getElementById('productModalWrapper').addEventListener('click', functio
     input.value = val;
     input.dispatchEvent(new Event('change', { bubbles: true }));
 });
+
+@if(!empty($openProduct))
+document.addEventListener('DOMContentLoaded', function () {
+    openProductModal("{{ route('products.show', $openProduct->slug) }}");
+});
+@endif
 </script>
 
 @verbatim

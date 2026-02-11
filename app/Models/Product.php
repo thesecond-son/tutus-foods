@@ -40,7 +40,17 @@ class Product extends Model
     }
 
     // Change from belongsTo to belongsToMany, but keep the name as 'category'
-    public function category()
+    // public function category()
+    // {
+    //     return $this->belongsToMany(Category::class);
+    // }
+
+    //     public function category()
+    // {
+    //     return $this->belongsTo(Category::class);
+    // }
+
+    public function categories()
     {
         return $this->belongsToMany(Category::class);
     }
@@ -48,6 +58,6 @@ class Product extends Model
     // Optional: Keep a helper for the primary category if needed
     public function primaryCategory()
     {
-        return $this->category()->first();
+        return $this->categories()->first();
     }
 }

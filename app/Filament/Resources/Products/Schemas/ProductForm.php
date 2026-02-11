@@ -37,13 +37,12 @@ class ProductForm
                     ->visibility('public')
                     ->preserveFilenames(),
                 // Just add ->multiple() to your existing field
-                Select::make('category')
-                ->label('Category')
-                ->relationship('category', 'name')
-                ->multiple()
-                ->searchable()
-                ->preload()
-                ->required(),
+                Select::make('categories')
+                    ->relationship('categories', 'name')
+                    ->multiple()
+                    ->searchable()
+                    ->preload()
+                    ->required(),
                 Repeater::make('product_options')
                     ->label('Product Variants')
                     ->schema([

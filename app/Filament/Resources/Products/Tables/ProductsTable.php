@@ -27,7 +27,13 @@ class ProductsTable
                 ImageColumn::make('image_url')
                     ->label('Image')
                     ->circular(),
-                TextColumn::make('category.name')->label('Category')->sortable(),
+                    TextColumn::make('categories') // refers to the relationship
+                    ->label('Categories')
+                    ->getStateUsing(function ($record) {
+                        // $record->categories is a Collection of Category models
+                        return $record->categories->pluck('name')->join(', ');
+                    })
+                    ->sortable(),
                 // TextColumn::make('category_id')
                 //     ->numeric()
                 //     ->sortable(),

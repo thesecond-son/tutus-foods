@@ -41,7 +41,7 @@ class ProductController extends Controller
             return view('web.products.cupcakes', [
                 'categories'        => $categories,
                 'stackedCategories' => $stackedCategories,
-                'currentCategory'   => $currentCategory,
+                'currentCategory'   => null,
             ]);
         }
 
@@ -60,10 +60,25 @@ class ProductController extends Controller
                 ->paginate(12)
                 ->withQueryString();
 
+            // ✅ Get product from query string
+            $productSlug = $request->query('product');
+
+            $openProduct = null;
+
+            if ($productSlug) {
+                $openProduct = Product::where('slug', $productSlug)
+                    ->whereHas('categories', function ($q) use ($currentCategory) {
+                        $q->where('categories.id', $currentCategory->id);
+                    })
+                    ->where('active', true)
+                    ->first();
+            }
+
             return view('web.products.index', [
                 'categories'      => $categories,
                 'products'        => $products,
                 'currentCategory' => $currentCategory,
+                'openProduct'     => $openProduct,
             ]);
         }
 
@@ -72,7 +87,7 @@ class ProductController extends Controller
          * /products
          */
         $products = Product::where('active', true)
-            ->whereHas('category', fn ($q) =>
+            ->whereHas('categories', fn ($q) =>
                 $q->where('slug', '!=', 'shop-christmas')
             )
             ->when($request->price, fn ($q) =>
