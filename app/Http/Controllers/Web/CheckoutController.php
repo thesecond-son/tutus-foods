@@ -119,7 +119,7 @@ class CheckoutController extends Controller
         // REGISTER EMAILS HERE (inside transaction)
     DB::afterCommit(function () use ($order) {
         Mail::to($order->customer_email)->send(new CustomerOrderMail($order));
-        Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
+        // Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
         // \Log::info('Email sent AFTER COMMIT for order ' . $order->order_number);
     });
 
@@ -233,6 +233,7 @@ public function createPayPalOrder(Request $request)
         ]);        
         
         \Log::info('Local Order Created', ['order' => $localOrder->toArray()]);
+        \Log::info('Saved Order Fields', $localOrder->toArray());
 
 
         // SUCCESS — return the PayPal order ID
@@ -305,12 +306,23 @@ public function capturePayPalOrder(Request $request)
     // 4️⃣ Handle success
     if (($result['status'] ?? null) === 'COMPLETED') {
 
-        DB::transaction(function () use ($order) {
+        DB::transaction(function () use ($order, $request) {
     
             // 1️⃣ Mark order as paid
             $order->update([
                 'payment_status' => 'paid',
                 'status' => 'completed',
+
+                'delivery_type' => $request->delivery_type,
+                'delivery_option_id'=> $request->delivery_option_id,
+                'delivery_address'  => $request->delivery_address,
+                'delivery_town'     => $request->delivery_town,
+                'delivery_postcode' => $request->delivery_postcode,
+                'delivery_fee'      => $request->delivery_fee ?? 0,
+            
+                'pickup_location_id'=> $request->pickup_location_id,
+                'pickup_date'       => $request->pickup_date,
+                'pickup_time'       => $request->pickup_time,
             ]);
 
             if ($order->items()->exists()) {
@@ -352,7 +364,7 @@ public function capturePayPalOrder(Request $request)
     
         DB::afterCommit(function () use ($order) {
             Mail::to($order->customer_email)->send(new CustomerOrderMail($order));
-            Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
+            // Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
         });
 
         session()->forget('cart');

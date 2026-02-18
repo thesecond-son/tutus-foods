@@ -90,6 +90,14 @@
             <!-- View -->
             <a href="{{ route('products.category', $currentCategory->slug ?? $product->categories->first()->slug) }}?product={{ $product->slug }}"
                 class="bg-white rounded-full p-3 shadow text-gray-800 hover:bg-[var(--brand-pink)] hover:text-white transition"> 
+            <!-- <a href="
+              @if(isset($currentCategory) && $currentCategory)
+                  {{ route('products.category', $currentCategory->slug) }}?product={{ $product->slug }}
+              @else
+                  {{ route('products.index', ['product' => $product->slug]) }}
+              @endif
+          "
+            class="bg-white rounded-full p-3 shadow text-gray-800 hover:bg-[var(--brand-pink)] hover:text-white transition"> -->
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

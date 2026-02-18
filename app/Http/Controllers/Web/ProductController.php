@@ -111,9 +111,21 @@ class ProductController extends Controller
             ->paginate(12)
             ->withQueryString();
 
+        // // ✅ Open product modal if query string exists
+        // $productSlug = $request->query('product');
+        // $openProduct = null;
+
+        // if ($productSlug) {
+        //     $openProduct = Product::where('slug', $productSlug)
+        //         ->where('active', true)
+        //         ->first(); // No category filter here, because it's "All Products"
+        // }
+
         return view('web.products.index', [
             'categories' => $categories,
             'products'   => $products,
+            // 'currentCategory' => null,
+            // 'openProduct' => $openProduct,
         ]);
     }
 
