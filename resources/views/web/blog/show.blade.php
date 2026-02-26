@@ -62,7 +62,6 @@
     <!-- Likes & Comment Count -->
     <div class="flex items-center gap-6 text-gray-600 mb-12">
       <span class="flex items-center gap-2 font-medium text-gray-700">❤️ {{ $blog->likes }}</span>
-      <!-- <span class="flex items-center gap-2 font-medium text-gray-700">💬 {{ $blog->comments->count() }}</span> -->
     </div>
 
     <!-- Comments Section -->

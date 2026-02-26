@@ -119,7 +119,7 @@ class CheckoutController extends Controller
         // REGISTER EMAILS HERE (inside transaction)
     DB::afterCommit(function () use ($order) {
         Mail::to($order->customer_email)->send(new CustomerOrderMail($order));
-        // Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
+        Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
         // \Log::info('Email sent AFTER COMMIT for order ' . $order->order_number);
     });
 
@@ -364,7 +364,7 @@ public function capturePayPalOrder(Request $request)
     
         DB::afterCommit(function () use ($order) {
             Mail::to($order->customer_email)->send(new CustomerOrderMail($order));
-            // Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
+            Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
         });
 
         session()->forget('cart');
