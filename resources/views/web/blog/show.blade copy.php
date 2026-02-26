@@ -71,7 +71,7 @@
       @forelse($blog->comments as $comment)
         <div class="mb-6 p-4 bg-white rounded-2xl shadow-sm">
           <div class="flex justify-between items-center mb-2">
-            <p class="text-gray-900 font-semibold">{{ $comment->customer_name ?? 'Anonymous' }}</p>
+            <p class="text-gray-900 font-semibold">{{ $comment->name ?? 'Anonymous' }}</p>
             <span class="text-gray-400 text-xs">{{ $comment->created_at->format('M d, Y H:i') }}</span>
           </div>
           <p class="text-gray-700">{{ $comment->comment }}</p>
@@ -84,8 +84,8 @@
       <form action="{{ route('blog.comments.store', $blog->id) }}" method="POST" class="mt-6 space-y-5">
         @csrf
         <div>
-          <label for="customer_name" class="block text-sm md:text-base font-medium text-gray-700 mb-1">Name</label>
-          <input type="text" name="customer_name" id="customer_name"
+          <label for="name" class="block text-sm md:text-base font-medium text-gray-700 mb-1">Name</label>
+          <input type="text" name="name" id="name"
                  class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[var(--brand-pink)] focus:outline-none bg-white">
         </div>
 
