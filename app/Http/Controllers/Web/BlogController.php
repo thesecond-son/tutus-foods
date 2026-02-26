@@ -32,18 +32,19 @@ class BlogController extends Controller
     public function show($slug)
     {
         $blog = Blog::with('categories', 'comments')->where('slug', $slug)->firstOrFail();
+
         return view('web.blog.show', compact('blog'));
     }
 
     public function storeComment(Request $request, Blog $blog)
     {
         $request->validate([
-            'customer_name' => 'nullable|string|max:255',
+            'name' => 'nullable|string|max:255',
             'comment' => 'required|string',
         ]);
 
         $blog->comments()->create([
-            'customer_name' => $request->customer_name,
+            'name' => $request->customer_name,
             'comment' => $request->comment,
         ]);
 
