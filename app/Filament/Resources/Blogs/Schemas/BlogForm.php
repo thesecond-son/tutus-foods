@@ -28,7 +28,10 @@ class BlogForm
                     ->required()
                     ->unique(ignoreRecord: true),
                 FileUpload::make('image')
-                    ->image(),
+                    ->image()
+                    ->disk('public')
+                    ->directory('blog-images')
+                    ->preserveFilenames(),
                 RichEditor::make('content')->required()->toolbarButtons([
                         'bold', 'italic', 'link', 'h1', 'h2', 'h3', 'bulletList', 'orderedList', 'blockquote'
                 ]), 
