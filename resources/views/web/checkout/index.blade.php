@@ -568,6 +568,17 @@ function loadSquareButton() {
 
         delivery_fee: deliveryFee
     };
+
+    // ✅ ADD THIS DEBUG LOG
+    console.log('Customer Info being sent:', customerInfo);
+
+    // ✅ ADD VALIDATION
+    if (!customerInfo.customer_phone || customerInfo.customer_phone.trim() === '') {
+        alert('Please enter a phone number');
+        throw new Error('Phone number is required');
+    }
+
+    return customerInfo;
 }
 
 
@@ -611,6 +622,17 @@ document.getElementById('sq-pay').addEventListener('click', async () => {
         }
 
     console.log("Square payment token:", result.token);
+
+    // ✅ Collect customer info with validation
+    let customerInfo;
+        try {
+            customerInfo = collectCustomerInfo();
+        } catch (error) {
+            console.error('Customer info validation failed:', error);
+            btn.disabled = false;
+            btn.innerText = "Pay with Card";
+            return;
+        }
 
     // Send to backend
     const res = await fetch("/checkout/square/create", {

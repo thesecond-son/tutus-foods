@@ -153,7 +153,7 @@
       </h2>
 
       <p class="text-gray-700 text-base md:text-lg font-medium mb-4">
-        Our Sourdough Order Cut-Off Times:
+      {{ $homepage->order_cutoff_times['subtitle'] ?? 'Our Sourdough Bread Order Cut-Off Times:' }}
       </p>
 
       <ul class="text-gray-600 text-sm md:text-base leading-relaxed space-y-1 mb-10">

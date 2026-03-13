@@ -24,7 +24,7 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        logger('AdminPanelProvider LOADED');
+        // logger('AdminPanelProvider LOADED');
 
         return $panel
             ->default()
