@@ -547,7 +547,7 @@ function loadSquareButton() {
 }
 
     function collectCustomerInfo() {
-    return {
+    const customerInfo = {
         customer_email: document.querySelector('input[name="customer_email"]').value,
         customer_first_name: document.querySelector('input[name="customer_first_name"]').value,
         customer_last_name: document.querySelector('input[name="customer_last_name"]').value,
@@ -571,6 +571,7 @@ function loadSquareButton() {
 
     // ✅ ADD THIS DEBUG LOG
     console.log('Customer Info being sent:', customerInfo);
+    console.log('Phone value:', customerInfo.customer_phone);
 
     // ✅ ADD VALIDATION
     if (!customerInfo.customer_phone || customerInfo.customer_phone.trim() === '') {
@@ -606,9 +607,28 @@ const payments = window.Square.payments(squareAppId, squareLocationId);
 const card = await payments.card();
 await card.attach('#card-container');
 
+
+// ✅ Disable button until phone is filled
+const sqPayBtn = document.getElementById('sq-pay');
+    const phoneInput = document.querySelector('input[name="customer_phone"]');
+    
+    function checkPhone() {
+        if (!phoneInput.value.trim()) {
+            sqPayBtn.disabled = true;
+            sqPayBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        } else {
+            sqPayBtn.disabled = false;
+            sqPayBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    }
+    
+    phoneInput.addEventListener('input', checkPhone);
+    checkPhone(); // Check initial state
+    // ✅ END OF ADDITION
+
 // 3️⃣ On Payment
-document.getElementById('sq-pay').addEventListener('click', async () => {
-    const btn = document.getElementById('sq-pay');
+sqPayBtn.addEventListener('click', async () => {
+    const btn = sqPayBtn;
     btn.disabled = true;
     btn.innerText = "Processing...";
 
