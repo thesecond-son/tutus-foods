@@ -16,7 +16,7 @@
     @foreach($homepage->hero['slides'] as $index => $slide)
       <img src="{{ asset('storage/'.$slide['image']) }}" fetchpriority="high"
            class="slide {{ $index === 0 ? 'active' : '' }}"
-           alt="Freshly baked bread by Tutu’s Foods">
+           alt="{{ $slide['image_alt'] ?? 'Freshly baked bread by Tutu’s Foods' }}">
     @endforeach
   </div>
 
@@ -56,7 +56,7 @@
   <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 md:gap-10">
     @foreach($homepage->favourites as $item)
       <a href="{{ $item['url'] }}" class="circle-card flex flex-col items-center text-center fade-up group">
-        <img src="{{ asset('storage/'.$item['image']) }}" alt="{{ $item['title'] }}" loading="lazy" decoding="async"
+        <img src="{{ asset('storage/'.$item['image']) }}" alt="{{ $item['image_alt'] }}" loading="lazy" decoding="async"
              class="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover mb-3 border-4 border-white shadow-sm 
                       transition-transform duration-300 group-hover:scale-110">
         <h3 class="text-base md:text-lg font-semibold text-gray-700 transition-colors group-hover:text-[var(--brand-pink)]">
@@ -85,7 +85,7 @@
         @endif
 
         <!-- Image -->
-        <img src="{{ asset('storage/'.$brand['image']) }}" loading="lazy" decoding="async" alt="{{ $brand['title'] }}"
+        <img src="{{ asset('storage/'.$brand['image']) }}" loading="lazy" decoding="async" alt="{{ $brand['image_alt'] }}"
         class="w-full h-full object-cover group-hover:scale-105 transition">
 
         <!-- Gradient overlay to soften the lower section -->

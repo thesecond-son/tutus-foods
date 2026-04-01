@@ -37,6 +37,12 @@ class ProductForm
                     ->visibility('public')
                     ->preserveFilenames(),
                 // Just add ->multiple() to your existing field
+                TextInput::make('image_alt')
+                    ->label('Image Alt Text')
+                    ->placeholder('e.g., Chocolate cake with frosting')
+                    ->maxLength(255)
+                    ->helperText('Describe the image for accessibility and SEO')
+                    ->columnSpanFull(),
                 Select::make('categories')
                     ->relationship('categories', 'name')
                     ->multiple()

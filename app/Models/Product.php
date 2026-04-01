@@ -11,7 +11,7 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'sku', 'name', 'slug', 'description', 'allergens', 'image_path', 
+        'sku', 'name', 'slug', 'description', 'allergens', 'image_path','image_alt', 
         'category_id', 'product_options', 'base_price', 'weight','pre_order',
         'pre_order_expectation', 'seasonal', 'season_start', 'season_end',
         'inventory', 'active', 'pickup_only'

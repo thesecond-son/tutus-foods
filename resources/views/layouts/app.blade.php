@@ -291,8 +291,8 @@ async function clearCart() {
     <!-- Left Image -->
     <div class="rounded-lg overflow-hidden h-[250px]">
       <img
-        src="{{ asset('images/footer-bread.webp') }}"
-        alt="Bread"
+        src="{{ !empty($homepage->footer['image']) ? asset('storage/'.$homepage->footer['image']) : asset('images/footer-bread.webp') }}"
+        alt="{{ !empty($homepage->footer['image_alt']) ? $homepage->footer['image_alt'] : 'Freshly baked bread by Tutu’s Foods' }}"
         class="w-full h-full object-cover rounded-lg"
       >
     </div>

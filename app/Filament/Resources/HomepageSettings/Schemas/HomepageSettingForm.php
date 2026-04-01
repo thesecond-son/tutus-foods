@@ -43,6 +43,11 @@ class HomepageSettingForm
                                 ->imagePreviewHeight(120)
                                 ->visibility('public')
                                 ->required(),
+                    TextInput::make('image_alt')
+                                ->label('Image Alt Text')
+                                ->placeholder('e.g., Chocolate cake with frosting')
+                                ->maxLength(255)
+                                ->columnSpanFull(),       
                         ])
                         ->minItems(3)
                         ->maxItems(3)
@@ -62,6 +67,12 @@ class HomepageSettingForm
                                 ->visibility('public')
                                 ->imagePreviewHeight(100)
                                 ->required(),
+
+                            TextInput::make('image_alt')
+                                ->label('Image Alt Text')
+                                ->placeholder('e.g., Chocolate cake with frosting')
+                                ->maxLength(255)
+                                ->columnSpanFull(), 
 
                             TextInput::make('title')
                                 ->required(),
@@ -87,6 +98,12 @@ class HomepageSettingForm
                                 ->visibility('public')
                                 ->imagePreviewHeight(150)
                                 ->required(),
+
+                            TextInput::make('image_alt')
+                                ->label('Image Alt Text')
+                                ->placeholder('e.g., Chocolate cake with frosting')
+                                ->maxLength(255)
+                                ->columnSpanFull(), 
 
                             TextInput::make('title')
                                 ->required(),
@@ -140,7 +157,7 @@ class HomepageSettingForm
                     TextInput::make('subtitle')
                     ->label('Section Subtitle')
                     ->required(),
-                    
+
                     Repeater::make('order_cutoff_times')
                         ->schema([
                            TextInput::make('pickup_day')
@@ -162,6 +179,12 @@ class HomepageSettingForm
                         ->directory('homepage/footer')
                         ->visibility('public')
                         ->imagePreviewHeight(80),
+                    
+                    TextInput::make('footer.image_alt')
+                        ->label('Image Alt Text')
+                        ->placeholder('e.g., Chocolate cake with frosting')
+                        ->maxLength(255)
+                        ->columnSpanFull(), 
 
                     TextInput::make('footer.phone'),
                     TextInput::make('footer.email')->email(),

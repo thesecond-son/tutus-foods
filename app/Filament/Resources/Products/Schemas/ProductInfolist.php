@@ -30,7 +30,10 @@ class ProductInfolist
                     ->placeholder('-')
                     ->extraAttributes([
                         'style' => 'width:150px; height:150px; object-fit:cover; border-radius:8px;',
-                    ]),                              
+                    ]),
+                TextEntry::make('image_alt')
+                    ->label('Image Alt Text')
+                    ->placeholder('-'),
                 TextEntry::make('category.name')
                     ->label('Category')
                     ->placeholder('-'),
