@@ -156,13 +156,16 @@
       {{ $homepage->order_cutoff_times['subtitle'] ?? 'Our Sourdough Bread Order Cut-Off Times:' }}
       </p>
 
-      <ul class="text-gray-600 text-sm md:text-base leading-relaxed space-y-1 mb-10">
-      @foreach($homepage->order_cutoff_times as $time)
-        <li>
-          <strong>{{ $time['pickup_day'] }}</strong>: Order by {{ $time['order_by'] }}
-        </li>
+        <ul class="text-gray-600 text-sm md:text-base leading-relaxed space-y-1 mb-10">
+      @foreach(($homepage->order_cutoff_times['items'] ?? []) as $time)
+          <li>
+              <strong>{{ $time['pickup_day'] ?? '' }}</strong>
+              @if(!empty($time['order_by']))
+                  : Order by {{ $time['order_by'] }}
+              @endif
+          </li>
       @endforeach
-      </ul>
+  </ul>
 
       <a href="#footer"
          class="inline-block bg-black text-white text-sm md:text-base font-semibold px-7 py-2.5 rounded-md transition-all duration-300 hover:bg-[var(--brand-pink)] hover:text-white scroll-smooth">

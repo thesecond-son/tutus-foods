@@ -154,11 +154,11 @@ class HomepageSettingForm
             //ORDER CUT-OFF TIMES
             Section::make('Order Cut-Off Times')
                 ->schema([
-                    TextInput::make('subtitle')
+                    TextInput::make('order_cutoff_times.subtitle')
                     ->label('Section Subtitle')
                     ->required(),
 
-                    Repeater::make('order_cutoff_times')
+                    Repeater::make('order_cutoff_times.items')
                         ->schema([
                            TextInput::make('pickup_day')
                                 ->required(),
