@@ -153,6 +153,10 @@
               <select name="pickup_time" id="pickup_time" class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[var(--brand-pink)] outline-none" disabled></select>
             </div>
           </div>
+
+          <p class="text-black-600 font-medium text-sm">
+          We post orders from Monday to Thursday only. Orders recieved after 10am on Thursday will be posted on Monday: Order by Thursday before 10am
+        </p>
         </div>
       </div>
 
