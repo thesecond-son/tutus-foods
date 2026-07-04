@@ -586,6 +586,25 @@ function loadSquareButton() {
     return customerInfo;
 }
 
+// ✅ Strong Customer Authentication (required for UK/EEA cards)
+async function verifyBuyer(payments, token, customerInfo) {
+    const verificationDetails = {
+        amount: (subtotal + deliveryFee).toFixed(2), // must match the charge amount
+        currencyCode: 'GBP',
+        intent: 'CHARGE',
+        customerInitiated: true,
+        sellerKeyedIn: false,
+        billingContact: {
+            givenName: customerInfo.customer_first_name,
+            familyName: customerInfo.customer_last_name,
+            email: customerInfo.customer_email,
+            phone: customerInfo.customer_phone,
+        },
+    };
+    const result = await payments.verifyBuyer(token, verificationDetails);
+    return result.token;
+}
+
 
     async function initSquarePayment() {
         if (!window.Square) {
@@ -658,6 +677,19 @@ sqPayBtn.addEventListener('click', async () => {
             return;
         }
 
+     // ✅ Run SCA / 3D Secure verification (required for UK/EEA cards)
+     let verificationToken;
+    try {
+        verificationToken = await verifyBuyer(payments, result.token, customerInfo);
+    } catch (error) {
+        console.error('Buyer verification failed:', error);
+        alert("Card verification failed. Please try again.");
+        btn.disabled = false;
+        btn.innerText = "Pay with Card";
+        return;
+    }
+
+
     // Send to backend
     const res = await fetch("/checkout/square/create", {
         method: "POST",
@@ -667,6 +699,7 @@ sqPayBtn.addEventListener('click', async () => {
         },
         body: JSON.stringify({
             source_id: result.token,
+            verification_token: verificationToken,
             delivery_fee: deliveryFee,
             ...collectCustomerInfo()
         })

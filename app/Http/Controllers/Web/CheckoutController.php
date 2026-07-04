@@ -455,6 +455,7 @@ public function createSquarePayment(Request $request)
         'amountMoney' => $money,
         'autocomplete' => true,
         'buyerEmailAddress' => $request->customer_email,
+        'verificationToken' => $request->verification_token,
         'note' => "Order $orderId",
     ]);
 
