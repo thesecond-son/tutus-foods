@@ -117,12 +117,19 @@ class CheckoutController extends Controller
         });
 
         // REGISTER EMAILS HERE (inside transaction)
-    DB::afterCommit(function () use ($order) {
-        Mail::to($order->customer_email)->send(new CustomerOrderMail($order));
-        Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
-        Mail::to('rominiyifatinikun@gmail.com')->send(new AdminOrderMail($order));
-        // \Log::info('Email sent AFTER COMMIT for order ' . $order->order_number);
-    });
+        DB::afterCommit(function () use ($order) {
+            try {
+                Mail::to($order->customer_email)->send(new CustomerOrderMail($order));
+                Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
+                Mail::to('rominiyifatinikun@gmail.com')->send(new AdminOrderMail($order));
+            } catch (\Throwable $e) {
+                // ✅ A broken mail provider must never mask a successful payment.
+                \Log::error('Order confirmation email failed', [
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        });
 
     return $order;
 }
@@ -364,9 +371,16 @@ public function capturePayPalOrder(Request $request)
         });
     
         DB::afterCommit(function () use ($order) {
-            Mail::to($order->customer_email)->send(new CustomerOrderMail($order));
-            Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
-            Mail::to('rominiyifatinikun@gmail.com')->send(new AdminOrderMail($order));
+            try {
+                Mail::to($order->customer_email)->send(new CustomerOrderMail($order));
+                Mail::to('info@tutuscupcakes.com')->send(new AdminOrderMail($order));
+                Mail::to('rominiyifatinikun@gmail.com')->send(new AdminOrderMail($order));
+            } catch (\Throwable $e) {
+                \Log::error('Order confirmation email failed', [
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         });
 
         session()->forget('cart');
