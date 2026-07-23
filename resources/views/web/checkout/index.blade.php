@@ -154,9 +154,11 @@
             </div>
           </div>
 
-          <p class="text-black-600 font-medium text-sm">
-          We post orders from Monday to Thursday only. Orders recieved after 10am on Thursday will be posted on Monday: Order by Thursday before 10am
-        </p>
+          @if($checkoutSettings->shipping_notice)
+                <p class="text-black-600 font-medium text-sm">
+                    {{ $checkoutSettings->shipping_notice }}
+                </p>
+            @endif
         </div>
       </div>
 

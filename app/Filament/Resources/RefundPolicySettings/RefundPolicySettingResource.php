@@ -11,6 +11,7 @@ use App\Filament\Resources\RefundPolicySettings\Schemas\RefundPolicySettingInfol
 use App\Filament\Resources\RefundPolicySettings\Tables\RefundPolicySettingsTable;
 use App\Models\RefundPolicySetting;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -21,6 +22,8 @@ class RefundPolicySettingResource extends Resource
     protected static ?string $model = RefundPolicySetting::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Pages Settings';
 
     protected static ?string $recordTitleAttribute = 'name';
 

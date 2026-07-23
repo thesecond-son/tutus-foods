@@ -161,7 +161,7 @@
           <li>
               <strong>{{ $time['pickup_day'] ?? '' }}</strong>
               @if(!empty($time['order_by']))
-                  : Order by {{ $time['order_by'] }}
+                  : {{ $time['order_by'] }}
               @endif
           </li>
       @endforeach

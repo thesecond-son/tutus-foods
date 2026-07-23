@@ -19,6 +19,7 @@ use App\Mail\CustomerOrderMail;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
+use App\Models\CheckoutPageSetting;
 
 class CheckoutController extends Controller
 {
@@ -27,8 +28,9 @@ class CheckoutController extends Controller
         $cart = session()->get('cart', []);
         $deliveryOptions = DeliveryOption::all();
         $pickupLocations = PickupLocation::all();
+        $checkoutSettings = CheckoutPageSetting::instance();
 
-        return view('web.checkout.index', compact('cart', 'deliveryOptions', 'pickupLocations'));
+        return view('web.checkout.index', compact('checkoutSettings','cart', 'deliveryOptions', 'pickupLocations'));
     }
 
     // --- Order creation after payment ---
