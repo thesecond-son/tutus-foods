@@ -36,7 +36,7 @@
       {{ $homepage->hero['subtitle'] }}
       </p>
 
-      <a href="{{ url('/products') }}"
+      <a href="{{ $homepage->hero['button_link'] }}"
          class="inline-flex items-center justify-center bg-[var(--brand-pink)] hover:bg-[#e04375] text-white font-semibold px-8 py-3 rounded-full shadow-md transition-transform transform hover:scale-105 duration-300">
          {{ $homepage->hero['button_text'] }}
       </a>
