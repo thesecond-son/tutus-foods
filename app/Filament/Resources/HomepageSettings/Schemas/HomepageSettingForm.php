@@ -160,11 +160,9 @@ class HomepageSettingForm
 
                     Repeater::make('order_cutoff_times.items')
                         ->schema([
-                           TextInput::make('pickup_day')
-                                ->required(),
+                           TextInput::make('pickup_day'),
 
-                            TextInput::make('order_by')
-                                ->required(),
+                            TextInput::make('order_by'),
                         ])
                         ->columns(2),
                 ])
