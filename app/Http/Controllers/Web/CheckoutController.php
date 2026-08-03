@@ -36,9 +36,16 @@ class CheckoutController extends Controller
     // --- Order creation after payment ---
     public function createOrderAfterPayment(Request $request, $paymentMethod, $paymentStatus, $paymentReference = null)
     {
-        $cart = session()->get('cart', []);
+        // ✅ Prefer the cart sent with the request (survives session loss during 3DS/redirect flows)
+        $cart = $request->input('cart') ?: session()->get('cart', []);
         if (!$cart) {
-            return response()->json(['status' => 'failed', 'message' => 'Cart is empty']);
+            // A payment has already been captured at this point — never quietly return
+            // a JsonResponse here, since callers expect an Order and will crash on ->id,
+            // silently masking a successful charge as a "failed" response.
+            throw new \Exception(
+                "Cart was empty when finalizing a paid order (payment_reference: {$paymentReference}). " .
+                "Payment succeeded but no order could be created — needs manual reconciliation."
+            );
         }
 
         $request->validate([
@@ -489,19 +496,57 @@ public function createSquarePayment(Request $request)
         // Check if payment was successful
         
         if ($payment && $payment->getStatus() === 'COMPLETED') {
-
-            $order = $this->createOrderAfterPayment(
-                $request,
-                'square',
-                'paid',
-                $payment->getId()
-            );
-
-            return response()->json([
-                'status' => 'success',
-                'order_id' => $order->id,
-                'payment_id' => $payment->getId(),
-            ]);
+ 
+            try {
+                $order = $this->createOrderAfterPayment(
+                    $request,
+                    'square',
+                    'paid',
+                    $payment->getId()
+                );
+ 
+                return response()->json([
+                    'status' => 'success',
+                    'order_id' => $order->id,
+                    'payment_id' => $payment->getId(),
+                ]);
+ 
+            } catch (\Throwable $e) {
+                // ✅ Money has already been captured by Square at this point.
+                // Never tell the customer "failed" here — that invites a retry and a double charge.
+                \Log::critical('Order creation failed AFTER successful Square payment', [
+                    'payment_id' => $payment->getId(),
+                    'amount' => $payment->getAmountMoney()?->getAmount(),
+                    'buyer_email' => $request->customer_email,
+                    'error' => $e->getMessage(),
+                ]);
+ 
+                try {
+                    Mail::raw(
+                        "URGENT: Square payment {$payment->getId()} for £" .
+                        number_format(($payment->getAmountMoney()?->getAmount() ?? 0) / 100, 2) .
+                        " succeeded but no order was created.\n" .
+                        "Customer: {$request->customer_email}\n" .
+                        "Error: {$e->getMessage()}\n" .
+                        "Please reconcile manually in the Square dashboard.",
+                        function ($message) {
+                            $message->to('info@tutuscupcakes.com')
+                                    ->to('rominiyifatinikun@gmail.com')
+                                    ->subject('⚠️ Manual reconciliation needed — paid order not recorded');
+                        }
+                    );
+                } catch (\Throwable $mailError) {
+                    \Log::critical('Failed to send urgent reconciliation alert', [
+                        'error' => $mailError->getMessage(),
+                    ]);
+                }
+ 
+                return response()->json([
+                    'status' => 'success',
+                    'payment_id' => $payment->getId(),
+                    'note' => 'Payment received. Your order is being finalized — you will receive a confirmation shortly.',
+                ]);
+            }
         }
 
         \Log::error('Square Payment Failed', ['response' => $response]);

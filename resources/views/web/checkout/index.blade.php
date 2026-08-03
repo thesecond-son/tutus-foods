@@ -703,14 +703,18 @@ sqPayBtn.addEventListener('click', async () => {
             source_id: result.token,
             verification_token: verificationToken,
             delivery_fee: deliveryFee,
+            cart: cart, // ✅ don't rely solely on server session surviving the 3DS challenge
             ...collectCustomerInfo()
         })
     });
 
     const data = await res.json();
 
-    if (data.status === "success") {
+    if (data.status === "success" && data.order_id) {
         window.location.href = "/checkout/success/" + data.order_id;
+    } else if (data.status === "success") {
+        // Payment captured but order record is being finalized on the backend
+        alert("Payment received! Your order confirmation will follow shortly by email.");
     } else {
         console.error(data);
         alert("Square payment failed.");
