@@ -12,6 +12,12 @@
 <section class="pt-28 pb-16 px-6 md:px-10 bg-[var(--brand-light-bg)] min-h-screen">
   <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
 
+  @if ($errors->has('options'))
+    <div class="col-span-full bg-red-50 border border-red-200 text-red-700 text-sm font-medium rounded-xl px-4 py-3 mb-2">
+      {{ $errors->first('options') }}
+    </div>
+  @endif
+
   <h2 class="sr-only">Product Categories</h2>
     <!-- =============== SIDEBAR =============== -->
     <aside id="filterSidebar"
@@ -206,9 +212,57 @@ function openProductModal(url) {
             content.innerHTML = '';
             content.appendChild(productSection);
 
-            // Setup Add-to-Cart button(s)
+            // ✅ Enforce variant selection: disable button until all required
+            // options are chosen, with visible inline errors (not just on click).
+            const optionSelects = content.querySelectorAll('select[name^="options["]');
+
+            function ensureErrorEl(select) {
+                let err = select.parentElement.querySelector('.variant-required-error');
+                if (!err) {
+                    err = document.createElement('p');
+                    err.className = 'variant-required-error text-red-600 text-xs mt-1 hidden';
+                    err.textContent = 'This selection is required.';
+                    select.insertAdjacentElement('afterend', err);
+                }
+                return err;
+            }
+
+            function validateOptions({ showErrors = false } = {}) {
+                let allValid = true;
+                optionSelects.forEach(select => {
+                    const err = ensureErrorEl(select);
+                    if (!select.value) {
+                        allValid = false;
+                        if (showErrors) {
+                            select.classList.add('border-red-500');
+                            err.classList.remove('hidden');
+                        }
+                    } else {
+                        select.classList.remove('border-red-500');
+                        err.classList.add('hidden');
+                    }
+                });
+                return allValid;
+            }
+
             content.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+                // Start disabled if this product has variants awaiting selection
+                if (optionSelects.length && !validateOptions()) {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+
+                optionSelects.forEach(select => {
+                    select.addEventListener('change', () => {
+                        const valid = validateOptions({ showErrors: false });
+                        btn.disabled = !valid;
+                        btn.classList.toggle('opacity-50', !valid);
+                        btn.classList.toggle('cursor-not-allowed', !valid);
+                    });
+                });
+
       btn.addEventListener('click', async () => {
+        console.log('🧩 add-to-cart-btn click handler (variant-required build) fired');
         const productId = btn.dataset.productId;
         if (!productId) return console.error("Product ID not found!");
 
@@ -216,6 +270,14 @@ function openProductModal(url) {
         let quantity = 1;
         const qtyInput = content.querySelector('input[name="quantity"]');
         if (qtyInput) quantity = parseInt(qtyInput.value) || 1;
+
+        // ✅ Hard stop: re-validate at click-time regardless of disabled state
+        if (!validateOptions({ showErrors: true })) {
+            const firstMissing = content.querySelector('select[name^="options["].border-red-500');
+            firstMissing?.reportValidity?.() ?? firstMissing?.focus();
+            firstMissing?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return; // stop here — don't add to cart until all options are chosen
+        }
 
         // ✅ Collect selected options at click-time
         const options = {};
@@ -252,6 +314,13 @@ function openProductModal(url) {
                 // Close modal after 0.8s
                 setTimeout(() => closeProductModal(), 800);
             } else {
+                let message = 'Something went wrong. Please try again.';
+                try {
+                    const data = await res.json();
+                    if (data?.message) message = data.message;
+                } catch (_) { /* response wasn't JSON — keep default message */ }
+
+                alert(message);
                 btn.innerHTML = 'Try Again';
             }
         } catch (err) {

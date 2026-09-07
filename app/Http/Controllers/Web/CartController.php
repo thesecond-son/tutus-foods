@@ -28,6 +28,32 @@ class CartController extends Controller
         // Read options (size, color, etc.)
         $options = $request->input('options', []);
 
+        // ✅ Enforce required variants server-side — this is the only place that
+        // can't be bypassed by disabled JS, a front-end bug, or a direct POST.
+        if (!empty($product->product_options)) {
+            $missing = [];
+            foreach ($product->product_options as $opt) {
+                $optionName = $opt['name'] ?? null;
+                if ($optionName && empty($options[$optionName])) {
+                    $missing[] = $optionName;
+                }
+            }
+
+            if (!empty($missing)) {
+                $message = 'Please select a ' . implode(' and ', $missing) . ' before adding this item to your cart.';
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $message,
+                        'missing_options' => $missing,
+                    ], 422);
+                }
+
+                return back()->withErrors(['options' => $message]);
+            }
+        }
+
         // Generate a unique cart key: product ID + serialized options
         $key = $id;
         if (!empty($options)) {

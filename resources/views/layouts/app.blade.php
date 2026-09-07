@@ -12,7 +12,7 @@
 
     <link rel="canonical" href="{{ url()->current() }}">
 
-    <link rel="preload" as="image" href="{{ asset('storage/'.$homepage->hero['slides'][0]['image']) }}">
+    <!-- <link rel="preload" as="image" href="{{ asset('storage/'.$homepage->hero['slides'][0]['image']) }}"> -->
 
     <!-- Tailwind CSS -->
     <!-- @vite(['resources/css/app.css', 'resources/js/app.js']) -->
