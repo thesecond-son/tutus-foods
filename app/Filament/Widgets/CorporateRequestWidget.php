@@ -8,6 +8,8 @@ use App\Models\CorporateRequest;
 
 class CorporateRequestWidget extends StatsOverviewWidget
 {
+    protected static ?int $sort = 10;
+
     protected function getStats(): array
     {
         return [

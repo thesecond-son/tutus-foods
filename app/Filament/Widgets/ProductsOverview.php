@@ -10,6 +10,10 @@ use Filament\Facades\Filament;
 
 class ProductsOverview extends StatsOverviewWidget
 {
+    protected static ?int $sort = 3;
+
+    protected int | string | array $columnSpan = 1;
+
     protected function getStats(): array
     {
         return [

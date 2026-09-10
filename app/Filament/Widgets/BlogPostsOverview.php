@@ -9,6 +9,8 @@ use Filament\Facades\Filament;
 
 class BlogPostsOverview extends StatsOverviewWidget
 {
+    protected static ?int $sort = 9;
+
     protected function getStats(): array
     {
         return [

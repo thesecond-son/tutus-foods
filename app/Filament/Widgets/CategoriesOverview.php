@@ -9,6 +9,10 @@ use Filament\Facades\Filament;
 
 class CategoriesOverview extends StatsOverviewWidget
 {
+    protected static ?int $sort = 8;
+
+    protected int | string | array $columnSpan = 3;
+
     protected function getStats(): array
     {
         return [
