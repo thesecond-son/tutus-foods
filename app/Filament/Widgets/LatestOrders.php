@@ -10,7 +10,7 @@ use App\Models\Order;
 
 class LatestOrders extends TableWidget
 {
-    protected static ?int $sort = 7;
+    protected static ?int $sort = 8;
 
     protected int|string|array $columnSpan = 'full';
 

@@ -7,7 +7,9 @@ use Filament\Widgets\ChartWidget;
 
 class SalesByProductChart extends ChartWidget
 {
-    protected static ?int $sort = 6;
+    protected static ?int $sort = 7;
+
+    protected int | string | array $columnSpan = 'full';
 
     protected ?string $heading = 'Sales by Product';
 
