@@ -42,7 +42,11 @@ class CartController extends Controller
             if (!empty($missing)) {
                 $message = 'Please select a ' . implode(' and ', $missing) . ' before adding this item to your cart.';
 
-                if ($request->ajax() || $request->wantsJson()) {
+                // ✅ Plain fetch() doesn't set X-Requested-With, so $request->ajax()
+                // alone is unreliable. Also check isJson()/wantsJson() so a JSON
+                // fetch() request always gets a real 422 back instead of silently
+                // following a redirect and reporting a false "success".
+                if ($request->ajax() || $request->wantsJson() || $request->isJson()) {
                     return response()->json([
                         'success' => false,
                         'message' => $message,
@@ -85,7 +89,7 @@ class CartController extends Controller
         session()->put('cart', $cart);
 
         // If AJAX request, return JSON
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson() || $request->isJson()) {
             return response()->json(['success' => true]);
         }
 

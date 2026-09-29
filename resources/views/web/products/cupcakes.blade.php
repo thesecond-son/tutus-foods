@@ -149,8 +149,53 @@ function openProductModal(url) {
             content.innerHTML = '';
             content.appendChild(productSection);
 
-            // Setup Add-to-Cart button(s)
+            // Setup Add-to-Cart button (works for products with or without options)
+            const optionSelects = content.querySelectorAll('select[name^="options["]');
+
+            function ensureErrorEl(select) {
+                let err = select.parentElement.querySelector('.variant-required-error');
+                if (!err) {
+                    err = document.createElement('p');
+                    err.className = 'variant-required-error text-red-600 text-xs mt-1 hidden';
+                    err.textContent = 'This selection is required.';
+                    select.insertAdjacentElement('afterend', err);
+                }
+                return err;
+            }
+
+            function validateOptions(showErrors) {
+                let allValid = true;
+                optionSelects.forEach(select => {
+                    const err = ensureErrorEl(select);
+                    if (!select.value) {
+                        allValid = false;
+                        if (showErrors) {
+                            select.classList.add('border-red-500');
+                            err.classList.remove('hidden');
+                        }
+                    } else {
+                        select.classList.remove('border-red-500');
+                        err.classList.add('hidden');
+                    }
+                });
+                return allValid;
+            }
+
             content.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+    if (optionSelects.length && !validateOptions(false)) {
+        btn.disabled = true;
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+
+    optionSelects.forEach(select => {
+        select.addEventListener('change', () => {
+            const valid = validateOptions(false);
+            btn.disabled = !valid;
+            btn.classList.toggle('opacity-50', !valid);
+            btn.classList.toggle('cursor-not-allowed', !valid);
+        });
+    });
+
     btn.addEventListener('click', async () => {
         const productId = btn.dataset.productId;
         if (!productId) return console.error("Product ID not found!");
@@ -160,6 +205,21 @@ function openProductModal(url) {
         const qtyInput = content.querySelector('input[name="quantity"]');
         if (qtyInput) quantity = parseInt(qtyInput.value) || 1;
 
+        // ✅ Require every variant to be selected before adding
+        if (optionSelects.length && !validateOptions(true)) {
+            const firstMissing = content.querySelector('select[name^="options["].border-red-500');
+            firstMissing?.reportValidity?.() ?? firstMissing?.focus();
+            firstMissing?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
+        // ✅ Collect selected options
+        const options = {};
+        optionSelects.forEach(select => {
+            const key = select.name.match(/\[(.*)\]/)?.[1];
+            if (key && select.value) options[key] = select.value;
+        });
+
         btn.disabled = true;
         btn.innerHTML = 'Adding...';
 
@@ -168,9 +228,10 @@ function openProductModal(url) {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
-                body: JSON.stringify({ quantity })
+                body: JSON.stringify({ quantity, options })
             });
 
             if (res.ok) {
@@ -181,6 +242,12 @@ function openProductModal(url) {
                 // Close modal after 0.8s
                 setTimeout(() => closeProductModal(), 800);
             } else {
+                let message = 'Something went wrong. Please try again.';
+                try {
+                    const data = await res.json();
+                    if (data?.message) message = data.message;
+                } catch (_) {}
+                alert(message);
                 btn.innerHTML = 'Try Again';
             }
         } catch (err) {
@@ -188,7 +255,7 @@ function openProductModal(url) {
             btn.innerHTML = 'Error';
         } finally {
             setTimeout(() => {
-                btn.disabled = false;
+                btn.disabled = !(optionSelects.length ? validateOptions(false) : true);
                 btn.innerHTML = `Add to Cart | £${parseFloat(btn.dataset.price || 0).toFixed(2)}`;
                 btn.classList.remove('bg-green-500');
             }, 1200);

@@ -87,7 +87,11 @@
           
           <!-- Product Image -->
           <img src="{{ asset('storage/' . $product->image_path) }}"
-               loading="lazy" decoding="async" fetchpriority="low"
+               @if ($loop->index < 6)
+                 loading="eager" fetchpriority="high"
+               @else
+                 loading="lazy" decoding="async" fetchpriority="low"
+               @endif
                alt="{{ $product->image_alt ?? ($product->name . ' – handcrafted baked product from Tutu’s Foods') }}"
                class="w-full aspect-[4/5] object-cover rounded-t-2xl transition-transform duration-700 ease-out group-hover:scale-105">
 

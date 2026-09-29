@@ -17,10 +17,30 @@
     <!-- Tailwind CSS -->
     <!-- @vite(['resources/css/app.css', 'resources/js/app.js']) -->
      <!-- Vite Scripts & Styles -->
+
+    <!-- ✅ Resource hints: warm up the connection to the external CDN dependency -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+
+    <!-- ✅ Critical CSS: renders the above-the-fold look instantly, before the
+         full compiled stylesheet finishes downloading, so there's no flash of
+         unstyled content. This does not block or slow anything else — the
+         real stylesheet below still loads in parallel and simply overrides
+         these same rules once it arrives. Keep this in sync with your brand
+         variables/colors if they change. -->
+    <style>
+        :root { --brand-pink: #ff5887; --brand-light-bg: #fff8fa; }
+        body { background:#fff; color:#1f2937; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; margin:0; }
+        header nav { background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.05); position:fixed; top:0; left:0; right:0; z-index:50; }
+        header nav > div { max-width:80rem; margin:0 auto; display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1.5rem; }
+        main { display:block; }
+    </style>
+
      @if (app()->environment('local'))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @else
         <!-- Production build fallback -->
+        <link rel="preload" href="{{ secure_asset('build/assets/app.css') }}" as="style">
         <link rel="stylesheet" href="{{ secure_asset('build/assets/app.css') }}">
         <script type="module" src="{{ secure_asset('build/assets/app.js') }}"></script>
     @endif
