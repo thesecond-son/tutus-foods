@@ -87,7 +87,7 @@ class CheckoutController extends Controller
                 'delivery_address' => $request->delivery_address,
                 'delivery_town' => $request->delivery_town,
                 'delivery_postcode' => $request->delivery_postcode,
-                'delivery_fee' => $request->delivery_fee ?? 0,
+                'delivery_fee' => $this->calculateDeliveryFee($cart, $request),
                 'pickup_location_id' => $request->pickup_location_id,
                 'pickup_date' => $request->pickup_date,
                 'pickup_time' => $request->pickup_time,
@@ -159,8 +159,10 @@ public function createPayPalOrder(Request $request)
 
     try {
 
-         // Calculate total from cart instead of trusting frontend
-        $total = floatval($request->total ?? 0);
+        // ✅ Actually calculate from cart server-side (the comment already said
+        // this was the intent — $request->total was being trusted directly,
+        // which let the client set the entire PayPal order amount).
+        $total = $this->calculateTotal($cart, $request);
 
         \Log::info('Creating PayPal Order', [
             'cart' => $cart,
@@ -235,7 +237,7 @@ public function createPayPalOrder(Request $request)
             'delivery_address'  => $request->delivery_address,
             'delivery_town'     => $request->delivery_town,
             'delivery_postcode' => $request->delivery_postcode,
-            'delivery_fee'      => $request->delivery_fee ?? 0,
+            'delivery_fee'      => $this->calculateDeliveryFee($cart, $request),
         
             'pickup_location_id'=> $request->pickup_location_id,
             'pickup_date'       => $request->pickup_date,
@@ -324,7 +326,11 @@ public function capturePayPalOrder(Request $request)
     if (($result['status'] ?? null) === 'COMPLETED') {
 
         DB::transaction(function () use ($order, $request) {
-    
+
+            // ✅ Recalculate from the cart snapshot taken at order creation —
+            // never trust $request->delivery_fee for what actually gets stored.
+            $cartForFee = json_decode($order->cart_snapshot ?? '[]', true) ?: [];
+
             // 1️⃣ Mark order as paid
             $order->update([
                 'payment_status' => 'paid',
@@ -335,7 +341,7 @@ public function capturePayPalOrder(Request $request)
                 'delivery_address'  => $request->delivery_address,
                 'delivery_town'     => $request->delivery_town,
                 'delivery_postcode' => $request->delivery_postcode,
-                'delivery_fee'      => $request->delivery_fee ?? 0,
+                'delivery_fee'      => $this->calculateDeliveryFee($cartForFee, $request),
             
                 'pickup_location_id'=> $request->pickup_location_id,
                 'pickup_date'       => $request->pickup_date,
@@ -571,22 +577,55 @@ public function createSquarePayment(Request $request)
             $subtotal += $item['price'] * $item['quantity'];
         }
 
-        // Delivery fee
-        $deliveryFee = 0;
-        if ($request->delivery_type === 'delivery' && $request->delivery_option_id) {
-            $option = DeliveryOption::find($request->delivery_option_id);
-            if ($option->calculated_by === 'flat_rate') {
-                $deliveryFee = $option->rate;
-            } elseif ($option->calculated_by === 'weight_based') {
-                $totalWeight = array_sum(array_map(fn($item) => $item['weight'] * $item['quantity'], $cart));
-                $range = $option->weightRanges()->where('min_weight', '<=', $totalWeight)
-                                               ->where('max_weight', '>=', $totalWeight)
-                                               ->first();
-                if ($range) $deliveryFee = $range->rate;
-            }
+        return $subtotal + $this->calculateDeliveryFee($cart, $request);
+    }
+
+    /**
+     * Server-side source of truth for the delivery fee — never trust
+     * $request->delivery_fee for the actual charge or the stored order
+     * record, since that's client-supplied and can drift from what the
+     * delivery option/weight ranges actually resolve to.
+     */
+    private function calculateDeliveryFee($cart, $request)
+    {
+        if ($request->delivery_type !== 'delivery' || !$request->delivery_option_id) {
+            return 0;
         }
 
-        return $subtotal + $deliveryFee;
+        $option = DeliveryOption::find($request->delivery_option_id);
+        if (!$option) {
+            return 0;
+        }
+
+        if ($option->calculated_by === 'flat_rate') {
+            return (float) $option->rate;
+        }
+
+        if ($option->calculated_by === 'weight_based') {
+            $totalWeight = array_sum(array_map(fn($item) => $item['weight'] * $item['quantity'], $cart));
+            $range = $option->weightRanges()
+                ->where('min_weight', '<=', $totalWeight)
+                ->where('max_weight', '>=', $totalWeight)
+                ->first();
+
+            if ($range) {
+                return (float) $range->rate;
+            }
+
+            // ✅ No weight range matched — fall back to the delivery option's
+            // own configured default rate (documented in the admin form as
+            // "Default charge applied if no weight range matches"), instead
+            // of silently charging £0 delivery.
+            \Log::warning('No weight range matched for delivery fee — using default rate', [
+                'delivery_option_id' => $option->id,
+                'total_weight' => $totalWeight,
+                'default_rate' => $option->rate,
+            ]);
+
+            return (float) $option->rate;
+        }
+
+        return 0;
     }
 
     public function store(Request $request)
@@ -629,7 +668,7 @@ public function createSquarePayment(Request $request)
             'delivery_address' => $request->delivery_address,
             'delivery_town' => $request->delivery_town,
             'delivery_postcode' => $request->delivery_postcode,
-            'delivery_fee' => $request->delivery_fee ?? 0,
+            'delivery_fee' => $this->calculateDeliveryFee($cart, $request),
             'pickup_location_id' => $request->pickup_location_id,
             'pickup_date' => $request->pickup_date,
             'pickup_time' => $request->pickup_time,
