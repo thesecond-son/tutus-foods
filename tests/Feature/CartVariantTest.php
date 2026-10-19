@@ -17,8 +17,9 @@ class CartVariantTest extends TestCase
      */
     protected function makeProductWithVariant(): Product
     {
-        return Product::factory()->create([
-            'category_id' => Category::factory()->create()->id,
+        $category = Category::factory()->create();
+    
+        $product = Product::factory()->create([
             'base_price' => 12.00,
             'inventory' => 10,
             'active' => true,
@@ -32,6 +33,10 @@ class CartVariantTest extends TestCase
                 ],
             ],
         ]);
+    
+        $product->categories()->attach($category->id);
+    
+        return $product;
     }
 
     /** @test */
@@ -91,13 +96,16 @@ class CartVariantTest extends TestCase
     /** @test */
     public function it_adds_a_product_with_no_variants_normally()
     {
+        $category = Category::factory()->create();
+
         $product = Product::factory()->create([
-            'category_id' => Category::factory()->create()->id,
             'base_price' => 8.00,
             'inventory' => 10,
             'active' => true,
-            'product_options' => [], // no variants configured at all
+            'product_options' => [],
         ]);
+
+        $product->categories()->attach($category->id);
 
         $response = $this->postJson("/cart/add/{$product->id}", [
             'quantity' => 1,

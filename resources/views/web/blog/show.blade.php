@@ -8,6 +8,21 @@
     --brand-pink-light: #ff88a6;
     --brand-light-bg: #fff8f9;
   }
+
+  /* Tailwind's preflight strips margins/sizes from p, h1-h3, ul, ol, blockquote.
+     These rules restore them for content written in the admin rich editor. */
+  .blog-content { line-height: 1.75; font-size: 1.125rem; }
+  .blog-content p { margin: 0 0 1.25rem; }
+  .blog-content p:empty { min-height: 1.5em; }       /* blank lines added in the editor */
+  .blog-content h1 { font-size: 2rem; font-weight: 800; margin: 2rem 0 1rem; line-height: 1.2; }
+  .blog-content h2 { font-size: 1.6rem; font-weight: 700; margin: 1.75rem 0 0.75rem; line-height: 1.25; }
+  .blog-content h3 { font-size: 1.3rem; font-weight: 700; margin: 1.5rem 0 0.75rem; line-height: 1.3; }
+  .blog-content ul { list-style: disc; padding-left: 1.5rem; margin: 0 0 1.25rem; }
+  .blog-content ol { list-style: decimal; padding-left: 1.5rem; margin: 0 0 1.25rem; }
+  .blog-content li { margin-bottom: 0.5rem; }
+  .blog-content blockquote { border-left: 4px solid #e5e7eb; padding-left: 1rem; margin: 0 0 1.25rem; font-style: italic; }
+  .blog-content a { text-decoration: underline; }
+  .blog-content strong { font-weight: 700; }
 </style>
 
 <section class="bg-white py-20 px-6">
@@ -55,7 +70,7 @@
     @endif
 
     <!-- Blog Content -->
-    <div class="prose prose-xl max-w-full mx-auto text-gray-900 mb-12">
+    <div class="blog-content max-w-full mx-auto text-gray-900 mb-12">
       {!! $blog->content !!}
     </div>
 
