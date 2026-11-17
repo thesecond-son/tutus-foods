@@ -37,9 +37,12 @@ Route::get('/login-test', function() {
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', [PagesController::class, 'about'])->name('about');
 Route::get('/refund-policy', [PagesController::class, 'refund'])->name('refund-policy');
-Route::get('/privacy-policy', [PagesController::class, 'privacy'])->name('privacy-policy');
-Route::get('/contact', [PagesController::class, 'contact'])->name('contact');
+// Route::get('/privacy-policy', [PagesController::class, 'privacy'])->name('privacy-policy');
+// Route::get('/contact', [PagesController::class, 'contact'])->name('contact');
 
+Route::view('/privacy-policy', 'web.privacy')->name('privacy-policy');
+
+Route::view('/contact', 'web.contact')->name('contact');
 
 Route::post('/newsletter/subscribe', [HomeController::class, 'subscribe'])->name('newsletter.subscribe');
 

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.regular')
 
 @section('title', "Contact Us - Tutu's Foods")
 
