@@ -109,10 +109,10 @@ Route::prefix('cart')->name('cart.')->group(function () {
 // Checkout flow
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
 Route::post('/checkout', [CheckoutController::class, 'createOrderAfterPayment']);
-Route::post('/checkout/store', [CheckoutController::class, 'store'])->name('checkout.store');
-Route::post('/checkout/paypal/create', [CheckoutController::class, 'createPayPalOrder'])->name('checkout.paypal.create')->withoutMiddleware(['web']);
-Route::post('/checkout/paypal/capture', [CheckoutController::class, 'capturePayPalOrder'])->name('checkout.paypal.capture');
-Route::post('/checkout/square/create', [CheckoutController::class, 'createSquarePayment'])->name('checkout.square.create');
+Route::post('/checkout/store', [CheckoutController::class, 'store'])->name('checkout.store')->middleware('throttle:10,1');;
+Route::post('/checkout/paypal/create', [CheckoutController::class, 'createPayPalOrder'])->name('checkout.paypal.create')->middleware('throttle:10,1');
+Route::post('/checkout/paypal/capture', [CheckoutController::class, 'capturePayPalOrder'])->name('checkout.paypal.capture')->middleware('throttle:10,1');
+Route::post('/checkout/square/create', [CheckoutController::class, 'createSquarePayment'])->name('checkout.square.create')->middleware('throttle:10,1');;
 Route::get('/square/config', [CheckoutController::class, 'getSquareConfig']);
 
 Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');

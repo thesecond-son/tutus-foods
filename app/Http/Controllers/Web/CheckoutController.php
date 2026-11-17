@@ -438,7 +438,10 @@ public function getSquareConfig()
 
 public function createSquarePayment(Request $request)
 {
-    \Log::info('Square Payment Init', ['request' => $request->all()]);
+    \Log::info('Square payment initiated', [
+        'payment_method' => 'square',
+        'session_id' => session()->getId(),
+    ]);
 
     $cart = session()->get('cart', []);
     $totalAmount = $this->calculateTotal($cart, $request);
