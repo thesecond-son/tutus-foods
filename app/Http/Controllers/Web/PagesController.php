@@ -46,4 +46,13 @@ class PagesController extends Controller
             'privacyPolicy' => $privacyPolicy,
         ]);
     }
+
+    public function contact()
+    {
+        $homepage = HomepageSetting::firstOrFail();
+
+        return view('web.contact', [
+            'homepage' => $homepage,
+        ]);
+    }
 }
