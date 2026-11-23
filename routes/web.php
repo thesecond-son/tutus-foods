@@ -86,10 +86,17 @@ Route::prefix('cart')->name('cart.')->group(function () {
     })->name('remove');
 
     // Clear Entire Cart
-    Route::post('/clear', function () {
+    Route::post('/clear', function (\Illuminate\Http\Request $request) {
         session()->forget('cart');
         session()->save();
-        return response()->json(['success' => true]);
+
+        // The cart sidebar calls this via fetch (expects JSON); the Clear Cart
+        // button on the cart page is a normal form post and needs a redirect.
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->route('cart.index')->with('success', 'Cart cleared.');
     })->name('clear');
     
     // ✅ Get total cart count (session-based)

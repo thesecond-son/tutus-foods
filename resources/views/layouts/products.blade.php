@@ -305,6 +305,66 @@ async function clearCart() {
 
    @stack('scripts')
 
+<script>
+// Mobile "Filter & Categories" toggle — shared by every products page that has
+// #toggleSidebar + #filterSidebar (all products, categories, cupcakes, etc.)
+(function () {
+  function initFilterToggle() {
+    const toggleBtn = document.getElementById('toggleSidebar');
+    const sidebar = document.getElementById('filterSidebar');
+    if (!toggleBtn || !sidebar || toggleBtn.dataset.bound) return;
+    toggleBtn.dataset.bound = '1';
+
+    const icon = toggleBtn.querySelector('[data-toggle-icon]');
+    const isMobile = () => window.matchMedia('(max-width: 767px)').matches;
+
+    function setOpen(open) {
+      sidebar.classList.toggle('hidden', !open);
+      toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (icon) icon.style.transform = open ? 'rotate(180deg)' : '';
+    }
+
+    toggleBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!isMobile()) return;
+      setOpen(sidebar.classList.contains('hidden'));
+    });
+
+    // Tap outside the panel closes it (mobile only)
+    document.addEventListener('click', (e) => {
+      if (!isMobile() || sidebar.classList.contains('hidden')) return;
+      if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+        setOpen(false);
+      }
+    });
+
+    // Escape closes it
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isMobile() && !sidebar.classList.contains('hidden')) {
+        setOpen(false);
+        toggleBtn.focus();
+      }
+    });
+
+    // Reset state when resizing to desktop (md:block keeps it visible there)
+    window.addEventListener('resize', () => {
+      if (!isMobile()) {
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        if (icon) icon.style.transform = '';
+        sidebar.classList.add('hidden');
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFilterToggle);
+  } else {
+    initFilterToggle();
+  }
+})();
+</script>
+
 
 <script>
 

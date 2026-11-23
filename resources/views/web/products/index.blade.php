@@ -19,6 +19,13 @@
   @endif
 
   <h2 class="sr-only">Product Categories</h2>
+    <!-- COLLAPSE BUTTON (mobile only) — placed before the sidebar so the panel opens below it -->
+    <button id="toggleSidebar" type="button" aria-controls="filterSidebar" aria-expanded="false"
+            class="md:hidden w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-[var(--brand-pink)] text-white text-sm font-semibold shadow-sm hover:bg-[#ff729b] transition" style="touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
+      <span>Filter &amp; Categories</span>
+      <svg data-toggle-icon class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+    </button>
+
     <!-- =============== SIDEBAR =============== -->
     <aside id="filterSidebar"
            class="md:col-span-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-8 md:block hidden transition-all duration-300">
@@ -62,12 +69,6 @@
         </form>
       </div>
     </aside>
-
-    <!-- COLLAPSE BUTTON (mobile only) -->
-    <button id="toggleSidebar"
-            class="md:hidden flex items-center justify-center mb-4 py-2 px-4 rounded-lg bg-[var(--brand-pink)] text-white text-sm font-semibold shadow-sm hover:bg-[#ff729b] transition">
-      Filter & Categories
-    </button>
 
     <!-- =============== MAIN PRODUCT GRID =============== -->
     <div class="md:col-span-3">
@@ -389,27 +390,6 @@ document.getElementById('productModalWrapper').addEventListener('click', functio
 
     input.value = val;
     input.dispatchEvent(new Event('change', { bubbles: true }));
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    const toggleBtn = document.getElementById('toggleSidebar');
-    const sidebar = document.getElementById('filterSidebar');
-
-    if (!toggleBtn || !sidebar) return;
-
-    toggleBtn.addEventListener('click', () => {
-        if (window.innerWidth < 768) {
-            sidebar.classList.toggle('hidden');
-        }
-    });
-
-    // Click outside to close
-    document.addEventListener('click', (e) => {
-        if (window.innerWidth >= 768) return; // desktop: ignore
-        if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
-            sidebar.classList.add('hidden');
-        }
-    });
 });
 
 @if(!empty($openProduct))
