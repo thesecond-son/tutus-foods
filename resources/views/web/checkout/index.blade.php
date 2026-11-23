@@ -18,6 +18,7 @@
 }
 
 </style>
+@endsection
 
 @php
     $hasSeasonal = collect($cart)->contains(fn($p) => !empty($p['seasonal']));

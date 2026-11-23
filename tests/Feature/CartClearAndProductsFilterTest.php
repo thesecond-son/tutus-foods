@@ -29,6 +29,33 @@ class CartClearAndProductsFilterTest extends TestCase
             ->assertJson(['success' => true]);
     }
 
+    /**
+     * Regression: an unclosed @section made Blade print the page content
+     * before <!DOCTYPE html>/<head>, causing a flash of unstyled content.
+     */
+    public static function layoutPages(): array
+    {
+        return [
+            'all products' => ['/products', null],
+            'cupcakes' => ['/products/category/cupcakes', 'cupcakes'],
+            'checkout' => ['/checkout', null],
+        ];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('layoutPages')]
+    public function test_pages_start_with_the_doctype_and_render_content_inside_main(string $url, ?string $categorySlug)
+    {
+        if ($categorySlug) {
+            \App\Models\Category::create(['name' => ucfirst($categorySlug), 'slug' => $categorySlug]);
+        }
+
+        $html = $this->get($url)->assertOk()->getContent();
+
+        $this->assertStringStartsWith('<!DOCTYPE html>', ltrim($html));
+        $this->assertSame(1, substr_count(strtolower($html), '<!doctype html>'));
+        $this->assertGreaterThan(strpos($html, '<main>'), strpos($html, 'id="productModalWrapper"') ?: strpos($html, 'id="checkoutForm"'));
+    }
+
     /** @test */
     public function products_page_renders_the_filter_toggle_before_the_sidebar_with_its_script()
     {

@@ -15,15 +15,10 @@
     <!-- <link rel="preload" as="image" href="{{ asset('storage/'.$homepage->hero['slides'][0]['image']) }}"> -->
 
     <!-- Tailwind CSS -->
-    <!-- @vite(['resources/css/app.css', 'resources/js/app.js']) -->
      <!-- Vite Scripts & Styles -->
-     @if (app()->environment('local'))
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @else
-        <!-- Production build fallback -->
-        <link rel="stylesheet" href="{{ secure_asset('build/assets/app.css') }}">
-        <script type="module" src="{{ secure_asset('build/assets/app.js') }}"></script>
-    @endif
+    {{-- @vite uses the dev server locally and public/build/manifest.json in production
+         (there is no un-hashed build/assets/app.css, so don't link it directly). --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
 
     @yield('styles')

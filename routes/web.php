@@ -16,21 +16,35 @@ use App\Mail\CustomerOrderMail;
 use Illuminate\Support\Facades\Mail;
 
 
-Route::get('/admin-test', function () {
-    return "works";
-});
-
 use Filament\Facades\Filament;
 
-Route::get('/test-auth', function() {
-    return auth()->check() ? auth()->user() : 'Not logged in';
-});
+// Debug routes — local environment only. /login-test logs the visitor in as
+// the first user, so it must never be registered in production.
+if (app()->environment('local')) {
+    Route::get('/admin-test', function () {
+        return "works";
+    });
 
-Route::get('/login-test', function() {
-    $user = \App\Models\User::first();
-    auth()->login($user);
-    return 'Logged in as ' . $user->email;
-});
+    Route::get('/test-auth', function() {
+        return auth()->check() ? auth()->user() : 'Not logged in';
+    });
+
+    Route::get('/login-test', function() {
+        $user = \App\Models\User::first();
+        auth()->login($user);
+        return 'Logged in as ' . $user->email;
+    });
+
+    Route::get('/test-mail', function () {
+        $order = Order::first(); // pick any order
+        if (!$order) {
+            return 'No orders found!';
+        }
+
+        Mail::to('romithesecond@gmail.com')->send(new CustomerOrderMail($order));
+        return 'Mail sent!';
+    });
+}
 
 
 // Public pages
@@ -130,15 +144,6 @@ Route::post('/corporate', [CorporateRequestController::class, 'submit'])->name('
 
 
 
-Route::get('/test-mail', function () {
-    $order = Order::first(); // pick any order
-    if (!$order) {
-        return 'No orders found!';
-    }
-
-    Mail::to('romithesecond@gmail.com')->send(new CustomerOrderMail($order));
-    return 'Mail sent!';
-});
 
 
 
