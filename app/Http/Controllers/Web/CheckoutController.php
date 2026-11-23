@@ -20,12 +20,74 @@ use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use App\Models\CheckoutPageSetting;
+use App\Models\Product;
+use Illuminate\Validation\ValidationException;
 
 class CheckoutController extends Controller
 {
+    /**
+     * The cart stores a snapshot of product settings taken when the item was
+     * added. Re-read them from the database so admin changes (e.g. turning
+     * off "pickup only", price changes) apply to carts that already exist.
+     */
+    private function refreshCartFromProducts($cart): array
+    {
+        $cart = is_array($cart) ? $cart : [];
+
+        $ids = collect($cart)->pluck('id')->filter()->unique();
+        if ($ids->isEmpty()) {
+            return $cart;
+        }
+
+        $products = Product::whereIn('id', $ids)->get()->keyBy('id');
+
+        foreach ($cart as $key => $item) {
+            $product = $products->get($item['id'] ?? null);
+            if (!$product) {
+                continue;
+            }
+
+            $cart[$key] = array_merge($item, [
+                'name' => $product->name,
+                'slug' => $product->slug,
+                'price' => $product->base_price,
+                'image' => $product->image_path,
+                'pickup_only' => (bool) $product->pickup_only,
+                'pre_order' => (bool) $product->pre_order,
+                'pre_order_expectation' => $product->pre_order_expectation,
+                'weight' => (float) ($product->weight ?? 0),
+                'seasonal' => (bool) $product->seasonal,
+                'season_start' => $product->season_start,
+                'season_end' => $product->season_end,
+            ]);
+        }
+
+        return $cart;
+    }
+
+    private function cartRequiresPickup(array $cart): bool
+    {
+        return collect($cart)->contains(fn ($item) => !empty($item['pickup_only']));
+    }
+
+    /**
+     * Server-side enforcement of pickup-only products. Must run BEFORE any
+     * payment is taken.
+     */
+    private function ensureDeliveryTypeAllowed(array $cart, Request $request): void
+    {
+        if ($request->delivery_type === 'delivery' && $this->cartRequiresPickup($cart)) {
+            throw ValidationException::withMessages([
+                'delivery_type' => 'Some products in your cart are pickup-only. Please choose pickup.',
+            ]);
+        }
+    }
+
     public function index()
     {
-        $cart = session()->get('cart', []);
+        $cart = $this->refreshCartFromProducts(session()->get('cart', []));
+        session()->put('cart', $cart);
+
         $deliveryOptions = DeliveryOption::all();
         $pickupLocations = PickupLocation::all();
         $checkoutSettings = CheckoutPageSetting::instance();
@@ -37,7 +99,7 @@ class CheckoutController extends Controller
     public function createOrderAfterPayment(Request $request, $paymentMethod, $paymentStatus, $paymentReference = null)
     {
         // ✅ Prefer the cart sent with the request (survives session loss during 3DS/redirect flows)
-        $cart = $request->input('cart') ?: session()->get('cart', []);
+        $cart = $this->refreshCartFromProducts($request->input('cart') ?: session()->get('cart', []));
         if (!$cart) {
             // A payment has already been captured at this point — never quietly return
             // a JsonResponse here, since callers expect an Order and will crash on ->id,
@@ -147,12 +209,19 @@ class CheckoutController extends Controller
 // --- PayPal ---
 public function createPayPalOrder(Request $request)
 {
-    $cart = $request->cart ?? session()->get('cart');
+    $cart = $this->refreshCartFromProducts($request->cart ?? session()->get('cart'));
 
     if (!$cart || empty($cart)) {
         return response()->json([
             'error' => true,
             'message' => 'Cart is empty',
+        ], 422);
+    }
+
+    if ($request->delivery_type === 'delivery' && $this->cartRequiresPickup($cart)) {
+        return response()->json([
+            'error' => true,
+            'message' => 'Some products in your cart are pickup-only. Please choose pickup.',
         ], 422);
     }
 
@@ -243,7 +312,7 @@ public function createPayPalOrder(Request $request)
             'pickup_date'       => $request->pickup_date,
             'pickup_time'       => $request->pickup_time,
 
-            'cart_snapshot'     => json_encode($request->cart ?? session()->get('cart', [])),
+            'cart_snapshot'     => json_encode($cart),
         
             'total_amount'      => $total,
             'payment_method'    => 'paypal',
@@ -306,6 +375,15 @@ public function capturePayPalOrder(Request $request)
         ]);
     }
     
+    // Pickup-only check against the snapshot, before any money is captured
+    $snapshotCart = json_decode($order->cart_snapshot ?? '[]', true) ?: [];
+    if ($request->delivery_type === 'delivery' && $this->cartRequiresPickup($snapshotCart)) {
+        return response()->json([
+            'status' => 'failed',
+            'message' => 'Some products in your cart are pickup-only. Please choose pickup.',
+        ], 422);
+    }
+
     // 3️⃣ Capture payment from PayPal
     $provider = new PayPalClient;
     $provider->setApiCredentials(config('paypal'));
@@ -443,7 +521,15 @@ public function createSquarePayment(Request $request)
         'session_id' => session()->getId(),
     ]);
 
-    $cart = session()->get('cart', []);
+    $cart = $this->refreshCartFromProducts(session()->get('cart', []));
+
+    if ($request->delivery_type === 'delivery' && $this->cartRequiresPickup($cart)) {
+        return response()->json([
+            'status' => 'failed',
+            'errors' => 'Some products in your cart are pickup-only. Please choose pickup.',
+        ], 422);
+    }
+
     $totalAmount = $this->calculateTotal($cart, $request);
 
     if ($totalAmount <= 0) {
@@ -633,10 +719,12 @@ public function createSquarePayment(Request $request)
 
     public function store(Request $request)
 {
-    $cart = session()->get('cart', []);
+    $cart = $this->refreshCartFromProducts(session()->get('cart', []));
     if (empty($cart)) {
         return redirect()->back()->withErrors('Your cart is empty.');
     }
+
+    $this->ensureDeliveryTypeAllowed($cart, $request);
 
     $request->validate([
         'customer_email' => 'required|email',
