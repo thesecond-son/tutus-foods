@@ -19,7 +19,16 @@ class CheckoutPageSettingInfolist
                         ->columnSpanFull(),
                 ])
                 ->columnSpanFull(),
- 
+
+                Section::make('Seasonal Products Notice (e.g. Shop Christmas)')
+                ->schema([
+                    TextEntry::make('seasonal_notice')
+                        ->label('Seasonal Notice Text')
+                        ->placeholder('Default: ' . \App\Models\CheckoutPageSetting::DEFAULT_SEASONAL_NOTICE)
+                        ->columnSpanFull(),
+                ])
+                ->columnSpanFull(),
+
                 Section::make('Meta')
                     ->schema([
                         TextEntry::make('created_at')->dateTime(),

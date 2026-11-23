@@ -28,8 +28,10 @@
     if ($hasSeasonal) {
         $seasonalItem = collect($cart)->firstWhere('seasonal', true) ?? collect($cart)->firstWhere('seasonal', 1);
         if ($seasonalItem) {
-            $seasonStart = isset($seasonalItem['season_start']) ? \Carbon\Carbon::parse($seasonalItem['season_start'])->format('Y-m-d') : null;
-            $seasonMessage = $seasonalItem['pre_order_expectation'] ?? ($seasonStart ? 'Pickup for this product will only be available from ' . $seasonStart : null);
+            $seasonStart = !empty($seasonalItem['season_start']) ? \Carbon\Carbon::parse($seasonalItem['season_start'])->format('j F Y') : null;
+            $seasonMessage = !empty($seasonalItem['pre_order_expectation'])
+                ? $seasonalItem['pre_order_expectation']
+                : $checkoutSettings->seasonalNoticeFor($seasonStart);
         }
     }
 
@@ -66,7 +68,7 @@
       {{-- DELIVERY METHOD --}}
       <div class="space-y-5">
         <h2 class="text-xl font-semibold text-gray-800">Delivery Method</h2>
-        @if($hasSeasonal)
+        @if($hasSeasonal && $seasonMessage)
         <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm rounded-lg p-3 mb-3">
             {{ $seasonMessage }}
         </div>
@@ -105,9 +107,7 @@
         class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[var(--brand-pink)] outline-none"
         {{ $hasMixedCart ? 'disabled' : '' }}>
         <option value="">Select Delivery Method</option>
-        @if(!$hasSeasonal)
-            <option value="delivery">Delivery</option>
-        @endif
+        <option value="delivery">Delivery</option>
         <option value="pickup">Pickup</option>
     </select>
 @endif
