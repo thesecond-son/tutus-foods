@@ -1,5 +1,15 @@
 @extends('layouts.products')
 
+@section('title', $blog->title." - Tutu's Foods Blog")
+@section('meta_description', \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($blog->content))), 160))
+@section('og_type', 'article')
+@if($blog->image)
+@section('og_image', asset('storage/'.$blog->image))
+@endif
+@push('structured_data')
+<script type="application/ld+json">{!! json_encode(['@context' => 'https://schema.org', '@type' => 'BlogPosting', 'headline' => $blog->title, 'image' => $blog->image ? asset('storage/'.$blog->image) : null, 'datePublished' => optional($blog->posted_at ?? $blog->created_at)->toIso8601String(), 'dateModified' => optional($blog->updated_at)->toIso8601String(), 'mainEntityOfPage' => url()->current(), 'author' => ['@type' => 'Organization', 'name' => "Tutu's Foods"], 'publisher' => ['@type' => 'Organization', 'name' => "Tutu's Foods", 'logo' => ['@type' => 'ImageObject', 'url' => asset('images/logo.webp')]]], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
+@endpush
+
 @section('content')
 
 <style>

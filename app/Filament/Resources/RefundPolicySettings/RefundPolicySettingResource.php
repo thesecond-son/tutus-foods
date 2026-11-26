@@ -25,7 +25,7 @@ class RefundPolicySettingResource extends Resource
 
     protected static string | UnitEnum | null $navigationGroup = 'Pages Settings';
 
-    protected static ?string $recordTitleAttribute = 'name';
+    protected static ?string $recordTitleAttribute = null;
 
     public static function form(Schema $schema): Schema
     {

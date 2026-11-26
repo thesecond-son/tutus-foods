@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', "Refund & Returns Policy - Tutu's Foods")
+@section('meta_description', "Tutu's Foods refund and returns policy for cakes, cupcakes and baked goods orders.")
 
 @section('content')
 <style>

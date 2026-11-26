@@ -1,6 +1,7 @@
 @extends('layouts.products')
 
 @section('title', "Corporate Orders - Tutu's Foods")
+@section('meta_description', "Corporate catering, branded treats and bulk orders for events and offices from Tutu's Foods. Request a quote.")
 
 @section('content')
 

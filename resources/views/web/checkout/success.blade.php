@@ -1,5 +1,8 @@
 @extends('layouts.products')
 
+@section('title', "Order Confirmed - Tutu's Foods")
+@section('robots', 'noindex, nofollow')
+
 <style>
   :root {
     --brand-pink: #ff5887;

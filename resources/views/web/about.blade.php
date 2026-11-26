@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', "About Us - Tutu's Foods")
+@section('meta_description', "Meet the team behind Tutu's Foods: our story, our bakers and the handcrafted cakes, cupcakes and treats we make.")
 
 @section('content')
 <style>

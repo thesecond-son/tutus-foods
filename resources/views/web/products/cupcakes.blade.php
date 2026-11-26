@@ -1,8 +1,12 @@
 @extends('layouts.products')
 
-@section('title', "Products - Tutu's Foods")
+@section('title', (!empty($openProduct) && is_object($openProduct)) ? $openProduct->name." - Tutu's Foods" : ((!empty($currentCategory) && is_object($currentCategory)) ? $currentCategory->name." - Tutu's Foods" : "Shop Cakes, Cupcakes & Treats - Tutu's Foods"))
 
-@section('meta_description', "Shop handcrafted baked goods, sourdough, festive treats, and pantry favourites from Tutu’s Foods.")
+@section('meta_description', (!empty($openProduct) && is_object($openProduct) && $openProduct->description) ? $openProduct->description : "Shop handcrafted cakes, cupcakes, sourdough, festive treats and pantry favourites from Tutu's Foods.")
+@if(!empty($openProduct) && is_object($openProduct) && $openProduct->image_url)
+@section('og_image', $openProduct->image_url)
+@section('og_type', 'product')
+@endif
 
 @section('content')
 
@@ -13,7 +17,7 @@
   <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
 
   <h2 class="sr-only">Product Categories</h2>
-    <!-- COLLAPSE BUTTON (mobile only) — placed before the sidebar so the panel opens below it -->
+    <!-- COLLAPSE BUTTON (mobile only) - placed before the sidebar so the panel opens below it -->
     <button id="toggleSidebar" type="button" aria-controls="filterSidebar" aria-expanded="false"
             class="md:hidden w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-[var(--brand-pink)] text-white text-sm font-semibold shadow-sm hover:bg-[#ff729b] transition" style="touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
       <span>Filter &amp; Categories</span>

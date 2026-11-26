@@ -25,7 +25,7 @@ class BlogResource extends Resource
 
     protected static string | UnitEnum | null $navigationGroup = 'Blog Management';
 
-    protected static ?string $recordTitleAttribute = 'name';
+    protected static ?string $recordTitleAttribute = 'title';
 
     public static function form(Schema $schema): Schema
     {

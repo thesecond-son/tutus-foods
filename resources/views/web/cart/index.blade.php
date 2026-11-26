@@ -1,5 +1,8 @@
 @extends('layouts.products')
 
+@section('title', "Your Cart - Tutu's Foods")
+@section('robots', 'noindex, follow')
+
 @section('styles')
 <style>
   :root {

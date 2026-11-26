@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('title', isset($category) && $category ? $category->name." - Blog - Tutu's Foods" : "Blog - Tutu's Foods")
+@section('meta_description', "Recipes, baking tips, seasonal ideas and news from the Tutu's Foods kitchen.")
+
 @section('content')
 <section class="bg-white py-16 px-6">
   <div class="max-w-7xl mx-auto">

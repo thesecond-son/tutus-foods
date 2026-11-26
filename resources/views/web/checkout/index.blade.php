@@ -1,5 +1,8 @@
 @extends('layouts.products')
 
+@section('title', "Checkout - Tutu's Foods")
+@section('robots', 'noindex, nofollow')
+
 @section('styles')
 <link rel="stylesheet" href="{{ asset('css/flatpickr.min.css') }}">
 <style>

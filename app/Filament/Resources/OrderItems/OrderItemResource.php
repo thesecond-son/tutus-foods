@@ -25,7 +25,7 @@ class OrderItemResource extends Resource
 
     protected static string | UnitEnum | null $navigationGroup = 'Order Management';
 
-    protected static ?string $recordTitleAttribute = 'name';
+    protected static ?string $recordTitleAttribute = null;
 
     public static function form(Schema $schema): Schema
     {

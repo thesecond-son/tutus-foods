@@ -25,7 +25,7 @@ class CorporateRequestResource extends Resource
 
     protected static string | UnitEnum | null $navigationGroup = 'Order Management';
 
-    protected static ?string $recordTitleAttribute = 'CorporateRequest';
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Schema $schema): Schema
     {

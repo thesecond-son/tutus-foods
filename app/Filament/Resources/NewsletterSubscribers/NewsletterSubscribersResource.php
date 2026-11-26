@@ -25,7 +25,7 @@ class NewsletterSubscribersResource extends Resource
 
     protected static string | UnitEnum | null $navigationGroup = 'Newsletter Management';
 
-    protected static ?string $recordTitleAttribute = 'name';
+    protected static ?string $recordTitleAttribute = 'email';
 
     public static function form(Schema $schema): Schema
     {

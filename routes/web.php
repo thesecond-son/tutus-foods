@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Mail;
 
 use Filament\Facades\Filament;
 
-// Debug routes — local environment only. /login-test logs the visitor in as
+// Debug routes: local environment only. /login-test logs the visitor in as
 // the first user, so it must never be registered in production.
 if (app()->environment('local')) {
     Route::get('/admin-test', function () {
@@ -148,3 +148,45 @@ Route::post('/corporate', [CorporateRequestController::class, 'submit'])->name('
 
 
 require __DIR__.'/auth.php';
+
+// SEO: XML sitemap of public storefront pages (cached for an hour).
+Route::get('/sitemap.xml', function () {
+    $xml = \Illuminate\Support\Facades\Cache::remember('sitemap.xml', 3600, function () {
+        $urls = collect([
+            ['loc' => route('home'), 'priority' => '1.0'],
+            ['loc' => route('products.index'), 'priority' => '0.9'],
+            ['loc' => route('shop-christmas'), 'priority' => '0.8'],
+            ['loc' => route('about'), 'priority' => '0.6'],
+            ['loc' => route('contact'), 'priority' => '0.6'],
+            ['loc' => route('corporate.index'), 'priority' => '0.6'],
+            ['loc' => route('blog.index'), 'priority' => '0.7'],
+            ['loc' => route('refund-policy'), 'priority' => '0.3'],
+            ['loc' => route('privacy-policy'), 'priority' => '0.3'],
+        ]);
+
+        \App\Models\Category::where('slug', '!=', 'shop-christmas')->get()->each(function ($c) use ($urls) {
+            $urls->push(['loc' => route('products.category', $c->slug), 'lastmod' => optional($c->updated_at)->toAtomString(), 'priority' => '0.8']);
+        });
+
+        \App\Models\Blog::latest()->get()->each(function ($b) use ($urls) {
+            $urls->push(['loc' => route('blog.show', $b->slug), 'lastmod' => optional($b->updated_at)->toAtomString(), 'priority' => '0.6']);
+        });
+
+        $out = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+        foreach ($urls as $u) {
+            $out .= '  <url><loc>' . e($u['loc']) . '</loc>'
+                . (!empty($u['lastmod']) ? '<lastmod>' . $u['lastmod'] . '</lastmod>' : '')
+                . '<priority>' . $u['priority'] . '</priority></url>' . "\n";
+        }
+        return $out . '</urlset>';
+    });
+
+    return response($xml, 200, ['Content-Type' => 'application/xml']);
+})->name('sitemap');
+
+Route::get('/robots.txt', function () {
+    $body = app()->environment('production')
+        ? "User-agent: *\nDisallow: /dashboard\nDisallow: /cart\nDisallow: /checkout\nDisallow: /square/\n\nSitemap: " . url('/sitemap.xml') . "\n"
+        : "User-agent: *\nDisallow: /\n";
+    return response($body, 200, ['Content-Type' => 'text/plain']);
+});

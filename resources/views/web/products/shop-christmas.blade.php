@@ -1,5 +1,8 @@
 @extends('layouts.products')
 
+@section('title', "Shop Christmas - Tutu's Foods")
+@section('meta_description', "Order Christmas treats, festive cakes and seasonal gift boxes from Tutu's Foods. Pre-order now for the holidays.")
+
 @section('content')
 <style>
 :root {

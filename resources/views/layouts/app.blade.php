@@ -4,13 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', "Tutu’s Foods")</title>
-
-    <meta name="description" content="@yield('meta_description', 'Handcrafted baked goods, festive treats, and signature brands from Tutu\'s Foods.')">
-
-    <meta name="robots" content="index, follow">
-
-    <link rel="canonical" href="{{ url()->current() }}">
+    @include('partials.seo', [
+        'defaultTitle' => "Tutu's Foods",
+        'defaultDescription' => "Handcrafted baked goods, festive treats, and signature brands from Tutu's Foods.",
+    ])
 
     <!-- <link rel="preload" as="image" href="{{ asset('storage/'.$homepage->hero['slides'][0]['image']) }}"> -->
 

@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', "Privacy Policy - Tutu's Foods")
+@section('meta_description', "How Tutu's Foods collects, uses and protects your personal information.")
 
 @section('content')
 <style>
